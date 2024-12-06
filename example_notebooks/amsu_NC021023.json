@@ -1,0 +1,7 @@
+{
+    "partitions": [
+      "/data/amsu/MSGTYPE_1/partition_20230101.parquet",
+      "/data/amsu/MSGTYPE_1/partition_20230102.parquet",
+      "/data/amsu/MSGTYPE_1/partition_20230103.parquet"
+    ]
+  }

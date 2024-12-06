@@ -1,0 +1,37 @@
+[project]
+name = "nnja"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fsspec>=2024.10.0",
+    "pandas>=2.2.3",
+]
+
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["nnja"]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.uv.sources]
+nnja = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "nnja[dev]",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipykernel",
+    "jupyterlab",
+    "pytest",
+    "black",
+    "matplotlib",
+]
