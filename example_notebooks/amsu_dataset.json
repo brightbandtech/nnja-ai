@@ -1,0 +1,73 @@
+{
+    "name": "amsu_sample_data",
+    "description": "Sample AMSU dataset with temperature brightness values and geospatial metadata.",
+    "tags": ["amsu", "sample", "brightness_temperature", "geospatial"],
+    "manifest": [
+      "amsu_data.parquet/OBS_DATE=2020-01-01/a6d3749324aa4b41aa4c9c716b3b7923-0.parquet",
+      "amsu_data.parquet/OBS_DATE=2020-01-02/a6d3749324aa4b41aa4c9c716b3b7923-0.parquet",
+      "amsu_data.parquet/OBS_DATE=2020-01-03/a6d3749324aa4b41aa4c9c716b3b7923-0.parquet"
+    ],
+    "dimensions": [
+      {
+        "channel": {
+          "units": null,
+          "values": [1, 2, 3, 4, 5],
+          "format_str": "05.0f"
+        }
+      }
+    ],
+    "variables": [
+      {
+        "id": "lat",
+        "description": "Latitude of the observation.",
+        "category": "primary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "units": "degrees"
+        }
+      },
+      {
+        "id": "lon",
+        "description": "Longitude of the observation.",
+        "category": "primary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "units": "degrees"
+        }
+      },
+      {
+        "id": "time",
+        "description": "Timestamp of the observation.",
+        "category": "primary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "format": "ISO8601"
+        }
+      },
+      {
+        "id": "said",
+        "description": "Satellite ID for the observation.",
+        "category": "secondary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "allowed_values": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        }
+      },
+      {
+        "id": "fovn",
+        "description": "Field of view number for the observation.",
+        "category": "secondary descriptors",
+        "dimension": null,
+        "extra_metadata": {}
+      },
+      {
+        "id": "brightness_temp",
+        "description": "Brightness temperature for different channels.",
+        "category": "primary data",
+        "dimension": "channel",
+        "extra_metadata": {
+          "units": "K"
+        }
+      }
+    ]
+  }
