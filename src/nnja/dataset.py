@@ -74,7 +74,7 @@ class NNJADataset:
                 dimensions[name] = metadata
         return dimensions
 
-    def _expand_variables(self, variables_metadata: list) -> Dict[NNJAVariable]:
+    def _expand_variables(self, variables_metadata: list) -> Dict[str, NNJAVariable]:
         """
         Expand variables from the dataset metadata into NNJAVariable objects.
 

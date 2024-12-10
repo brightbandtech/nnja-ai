@@ -58,7 +58,7 @@ class DataCatalog:
             message_types = group_metadata.get("datasets", {})
             for msg_type, msg_metadata in message_types.items():
                 # If there are multiple messages in a group, use message type name in the key.
-                key = group if len(message_types) == 1 else msg_type+"_"+msg_metadata["name"]
+                key = group if len(message_types) == 1 else group+"_"+msg_metadata["name"]
                 try:
                     datasets[key] = NNJADataset(msg_metadata["json"])
                 except Exception as e:
@@ -81,7 +81,7 @@ class DataCatalog:
 
     def list_datasets(self) -> list:
         """List all dataset groups."""
-        return list(self.catalog_metadata.keys())
+        return list(self.datasets.keys())
 
     def search(self, query_term: str) -> list:
         """
@@ -94,18 +94,11 @@ class DataCatalog:
             list: A list of NNJADataset objects matching the search term.
         """
         results = []
-        for group, group_metadata in self.catalog_metadata.items():
-            datasets = group_metadata.get("datasets", {})
-            for message_type, dataset_metadata in datasets.items():
-                if any(query_term.lower() in str(value).lower() for value in dataset_metadata.values()):
-                    json_uri = dataset_metadata["json"]
-                    try:
-                        dataset = NNJADataset(json_uri)
-                        results.append(dataset)
-                    except Exception as e:
-                        logger.warning(
-                            f"Could not load dataset for group '{group}', message type '{message_type}': {e}"
-                        )
+        for dataset in self.datasets.values():
+            for field in ["name", "description", "tags"]:
+                if query_term.lower() in str(getattr(dataset, field)).lower():
+                    results.append(dataset)
+                    break
         return results
 
 
