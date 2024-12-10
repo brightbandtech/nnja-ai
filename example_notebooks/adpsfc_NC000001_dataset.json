@@ -1,0 +1,45 @@
+{
+    "name": "WMOSYNOP_fixed",
+    "description": "Synoptic - fixed land (originating from WMO SYNOP bulletins).",
+    "tags": ["surface", "fixed-station", "synoptic", "wmo"],
+    "manifest": [
+    ],
+    "dimensions": [
+      {
+        "channel": {
+          "units": null,
+          "values": [1, 2, 3, 4, 5],
+          "format_str": "05.0f"
+        }
+      }
+    ],
+    "variables": [
+      {
+        "id": "lat",
+        "description": "Latitude of the observation.",
+        "category": "primary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "units": "degrees"
+        }
+      },
+      {
+        "id": "lon",
+        "description": "Longitude of the observation.",
+        "category": "primary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "units": "degrees"
+        }
+      },
+      {
+        "id": "time",
+        "description": "Timestamp of the observation.",
+        "category": "primary descriptors",
+        "dimension": null,
+        "extra_metadata": {
+          "format": "ISO8601"
+        }
+      }
+    ]
+  }
