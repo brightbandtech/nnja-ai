@@ -20,14 +20,6 @@ class DataCatalog:
         json_uri (str): Path to the JSON file (local or cloud storage).
         catalog_metadata (dict): Metadata of the catalog, loaded from the JSON file.
         datasets (dict): Dictionary of dataset instances or subtypes.
-    Methods:
-        __init__(json_uri: str):
-        _parse_datasets() -> dict:
-        info() -> str:
-            Provide information about the catalog.
-        list_datasets() -> list:
-            List all dataset groups.
-        search(queryterm: str) -> list:
     """
 
     def __init__(self, json_uri: str):
@@ -39,7 +31,19 @@ class DataCatalog:
         """
         self.json_uri = json_uri
         self.catalog_metadata: Dict[str, Dict[str, Any]] = read_json(json_uri)
-        self.datasets = self._parse_datasets()
+        self.datasets: Dict[str, NNJADataset] = self._parse_datasets()
+
+    def __getitem__(self, dataset_name: str) -> NNJADataset:
+        """
+        Fetch a specific dataset by name.
+
+        Args:
+            dataset_name: The name of the dataset to fetch.
+
+        Returns:
+            NNJADataset: The dataset object.
+        """
+        return self.datasets[dataset_name]
 
     def _parse_datasets(self) -> dict:
         """

@@ -27,11 +27,6 @@ class NNJAVariable:
         category (str): Category of the variable.
         dimension (optional): Dimension of the variable, if available.
         extra_metadata (dict): Additional metadata for the variable.
-
-    Methods:
-        __init__(variable_metadata: dict, full_id: str):
-        info() -> str:
-            Provide a summary of the variable.
     """
 
     def __init__(self, variable_metadata: dict, full_id: str):

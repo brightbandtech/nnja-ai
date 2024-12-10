@@ -1,5 +1,5 @@
 from .variable import NNJAVariable
-from .io import read_json
+from .io import read_json, Backend
 from typing import Dict
 
 
@@ -18,16 +18,6 @@ class NNJADataset:
         manifest (list): List of files in the dataset's manifest.
         dimensions (dict): Dict of dimensions parsed from metadata.
         variables (dict): Dict of NNJAVariable objects representing the dataset's variables.
-    Methods:
-        __repr__(): Return a concise string representation of the dataset.
-        __init__(json_uri: str): Initialize an NNJADataset object from a JSON file or URI.
-        __getitem__(variable_id: str) -> NNJAVariable: Fetch a specific variable by ID.
-        _parse_dimensions(dimensions_metadata: list) -> dict: Parse dimensions from metadata.
-        _expand_variables(variables_metadata: list) -> list: Expand variables tied to dimensions into
-            individual NNJAVariable objects.
-        info() -> str: Provide a summary of the dataset. More detailed than __repr__.
-        list_variables() -> list: List all variables with their descriptions.
-        load_dataset(library="pandas"): Load the dataset into a DataFrame using the specified library.
     """
 
     def __repr__(self):
@@ -127,24 +117,25 @@ class NNJADataset:
         """List all variables with their descriptions."""
         return [var.info() for var in self.variables.values()]
 
-    def load_dataset(self, library: str = "pandas"):
+    def load_dataset(self, backend: Backend = "pandas"):
         """
         Load the dataset into a DataFrame using the specified library.
-        TODO move this to the io module https://github.com/brightbandtech/nnja-ai/issues/4
+        TODO(#4) move this to the io module
         Args:
             library: The library to use for loading the dataset ('pandas', 'polars', etc.).
 
         Returns:
             DataFrame: The loaded dataset.
         """
-        if library == "pandas":
-            import pandas as pd
-            return pd.read_parquet(self.manifest)
-        elif library == "polars":
-            import polars as pl
-            return pl.scan_parquet(self.manifest)
-        elif library == "dask":
-            import dask.dataframe as dd
-            return dd.read_parquet(self.manifest)
-        else:
-            raise ValueError(f"Unsupported library: {library}. valid options are 'pandas', 'polars', or 'dask'.")
+        match backend:
+            case "pandas":
+                import pandas as pd
+                return pd.read_parquet(self.manifest)
+            case "polars":
+                import polars as pl
+                return pl.scan_parquet(self.manifest)
+            case "dask":
+                import dask.dataframe as dd
+                return dd.read_parquet(self.manifest)
+            case _:
+                raise ValueError(f"Unsupported backend: {backend}. valid options are {Backend.__args__}")
