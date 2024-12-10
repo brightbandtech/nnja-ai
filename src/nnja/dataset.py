@@ -1,5 +1,6 @@
 from .variable import NNJAVariable
 from .io import read_json
+from typing import Dict
 
 
 class NNJADataset:
@@ -15,17 +16,17 @@ class NNJADataset:
         description (str): Description of the dataset.
         tags (list): List of tags associated with the dataset.
         manifest (list): List of files in the dataset's manifest.
-        dimensions (dict): Dictionary of dimensions parsed from metadata.
-        variables (list): List of NNJAVariable objects representing the dataset's variables.
+        dimensions (dict): Dict of dimensions parsed from metadata.
+        variables (dict): Dict of NNJAVariable objects representing the dataset's variables.
     Methods:
         __repr__(): Return a concise string representation of the dataset.
         __init__(json_uri: str): Initialize an NNJADataset object from a JSON file or URI.
+        __getitem__(variable_id: str) -> NNJAVariable: Fetch a specific variable by ID.
         _parse_dimensions(dimensions_metadata: list) -> dict: Parse dimensions from metadata.
         _expand_variables(variables_metadata: list) -> list: Expand variables tied to dimensions into
             individual NNJAVariable objects.
         info() -> str: Provide a summary of the dataset. More detailed than __repr__.
         list_variables() -> list: List all variables with their descriptions.
-        get_variable(variable_id: str) -> NNJAVariable: Fetch a specific variable by ID.
         load_dataset(library="pandas"): Load the dataset into a DataFrame using the specified library.
     """
 
@@ -55,6 +56,18 @@ class NNJADataset:
         self.dimensions = self._parse_dimensions(dataset_metadata.get("dimensions", []))
         self.variables = self._expand_variables(dataset_metadata["variables"])
 
+    def __getitem__(self, variable_id: str) -> NNJAVariable:
+        """
+        Fetch a specific variable by ID.
+
+        Args:
+            variable_id: The ID of the variable to fetch.
+
+        Returns:
+            NNJAVariable: The variable object.
+        """
+        return self.variables[variable_id]
+
     def _parse_dimensions(self, dimensions_metadata: list) -> dict:
         """
         Parse dimensions from metadata.
@@ -71,29 +84,21 @@ class NNJADataset:
                 dimensions[name] = metadata
         return dimensions
 
-    def _expand_variables(self, variables_metadata: list) -> list[NNJAVariable]:
+    def _expand_variables(self, variables_metadata: list) -> Dict[NNJAVariable]:
         """
         Expand variables from the dataset metadata into NNJAVariable objects.
 
         This is only nontrivial since we've packed variables tied to dimensions into a single
-        variable definition in the metadata to avoid redundancy.
-
-        Args:
-            variables_metadata: List of variable definitions from the dataset metadata.
-
-        Returns:
-            list[NNJAVariable]: List of NNJAVariable objects.
-        """
-        """
-        Expand variables tied to dimensions into individual NNJAVariable objects.
+        variable definition in the metadata to avoid redundancy. Set as dict to allow for easy
+        retrieval by variable ID.
 
         Args:
             variables_metadata: List of variable definitions.
 
         Returns:
-            list: List of NNJAVariable objects.
+            Dict of NNJAVariable objects.
         """
-        variables = []
+        variables = {}
         for var_metadata in variables_metadata:
             if var_metadata.get("dimension"):
                 dim_name = var_metadata["dimension"]
@@ -102,9 +107,11 @@ class NNJADataset:
                     for value in dim["values"]:
                         formatted_value = f"{value:{dim['format_str']}}"
                         full_id = f"{var_metadata['id']}_{formatted_value}"
-                        variables.append(NNJAVariable(var_metadata, full_id))
+                        # variables.append(NNJAVariable(var_metadata, full_id))
+                        variables[full_id] = NNJAVariable(var_metadata, full_id)
             else:
-                variables.append(NNJAVariable(var_metadata, var_metadata["id"]))
+                # variables.append(NNJAVariable(var_metadata, var_metadata["id"]))
+                variables[var_metadata["id"]] = NNJAVariable(var_metadata, var_metadata["id"])
         return variables
 
     def info(self) -> str:
@@ -118,22 +125,7 @@ class NNJADataset:
 
     def list_variables(self) -> list:
         """List all variables with their descriptions."""
-        return [var.info() for var in self.variables]
-
-    def get_variable(self, variable_id: str) -> NNJAVariable:
-        """
-        Fetch a specific variable by ID.
-
-        Args:
-            variable_id: The ID of the variable.
-
-        Returns:
-            NNJAVariable: The requested variable, or None if not found.
-        """
-        for var in self.variables:
-            if var.id == variable_id:
-                return var
-        return None
+        return [var.info() for var in self.variables.values()]
 
     def load_dataset(self, library: str = "pandas"):
         """
