@@ -57,6 +57,9 @@ class NNJADataset:
         """
         Fetch a specific variable by ID or subset the dataset by a list of variable names.
 
+        If a single variable ID is provided, return the variable object.
+        If a list of variable names is provided, return a new dataset object with only the specified variables.
+
         Args:
             key: The ID of the variable to fetch or a list of variable names to subset.
 
@@ -173,7 +176,11 @@ class NNJADataset:
 
     def sel(self, **kwargs):
         """
-        Select data based on the provided keywords.
+        Select data based on the provided keywords. Allows for three types of selection:
+            - 'variables' or 'columns': Subset the dataset by a list of variable names.
+            - 'time': Subset the dataset by a time range.
+            - Any extra dimensions in self.dimensions: Subset the dataset by a specific value of the dimension.
+        Multiple keywords can be provided to perform multiple selections.
 
         Args:
             **kwargs: Keywords for subsetting. Valid keywords are 'variables', 'columns', 'time',
