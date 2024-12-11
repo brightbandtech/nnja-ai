@@ -27,7 +27,7 @@ nnja = { workspace = true }
 dev = [
     "coverage>=7.6.9",
     "mypy>=1.13.0",
-    "nnja[dev]",
+    "pytest-cov>=6.0.0",
     "pytest>=8.3.4",
     "ruff>=0.8.2",
 ]
@@ -42,7 +42,7 @@ interactive = [
 [tool.ruff]
 line-length = 88
 indent-width = 4
-ignore = []
+lint.ignore = []
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
