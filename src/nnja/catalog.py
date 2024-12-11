@@ -1,6 +1,6 @@
-from .io import read_json
+from nnja import io
+from nnja.dataset import NNJADataset
 import logging
-from .dataset import NNJADataset
 import os
 from typing import Dict, Any
 
@@ -30,7 +30,7 @@ class DataCatalog:
             json_uri: Path to the JSON file (local or cloud storage).
         """
         self.json_uri = json_uri
-        self.catalog_metadata: Dict[str, Dict[str, Any]] = read_json(json_uri)
+        self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(json_uri)
         self.datasets: Dict[str, NNJADataset] = self._parse_datasets()
 
     def __getitem__(self, dataset_name: str) -> NNJADataset:

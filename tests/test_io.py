@@ -20,6 +20,16 @@ def sample_parquet_files(tmp_path):
     return [str(file1), str(file2)]
 
 
+@pytest.fixture
+def sample_json_file(tmp_path):
+    # Create a sample JSON file for testing
+    data = {"key1": "value1", "key2": "value2"}
+    file_path = tmp_path / "sample.json"
+    with fsspec.open(file_path, mode="w") as f:
+        json.dump(data, f)
+    return str(file_path)
+
+
 def test_load_parquet_pandas(sample_parquet_files):
     result = load_parquet(sample_parquet_files, columns=["a"], backend="pandas")
     assert isinstance(result, pd.DataFrame)
@@ -47,16 +57,6 @@ def test_load_parquet_invalid_backend(sample_parquet_files):
         ValueError, match="Unsupported backend: invalid_backend. valid options are"
     ):
         load_parquet(sample_parquet_files, columns=["a"], backend="invalid_backend")
-
-
-@pytest.fixture
-def sample_json_file(tmp_path):
-    # Create a sample JSON file for testing
-    data = {"key1": "value1", "key2": "value2"}
-    file_path = tmp_path / "sample.json"
-    with fsspec.open(file_path, mode="w") as f:
-        json.dump(data, f)
-    return str(file_path)
 
 
 def test_read_json(sample_json_file):

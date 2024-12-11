@@ -31,6 +31,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest>=8.3.4",
     "ruff>=0.8.2",
+    "nnja[complete]",
 ]
 
 [project.optional-dependencies]
@@ -45,6 +46,7 @@ dask = [
 polars = [
     "polars>=1.17.1",
 ]
+complete = ["nnja[interactive,dask,polars]"]
 
 [tool.ruff]
 line-length = 88
