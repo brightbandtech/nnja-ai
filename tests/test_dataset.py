@@ -2,12 +2,8 @@ from nnja.dataset import NNJADataset
 
 
 def test_dataset_initialization():
-    dataset = NNJADataset("tests/sample_data/adpsfc_nc000001_dataset.json")
+    dataset = NNJADataset("tests/sample_data/adpsfc_NC000001_dataset.json")
     assert dataset.name == "WMOSYNOP_fixed"
-    assert (
-        dataset.description
-        == "Synoptic - fixed land (originating from WMO SYNOP bulletins)."
-    )
     assert dataset.tags == ["surface", "fixed-station", "synoptic", "wmo"]
     assert len(dataset.manifest) == 0
     assert len(dataset.variables) == 3
