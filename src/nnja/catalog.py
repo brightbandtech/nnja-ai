@@ -89,7 +89,7 @@ class DataCatalog:
 
     def search(self, query_term: str) -> list:
         """
-        Search datasets by tags, description, or name.
+        Search datasets by name, tags, description, or variables.
 
         Args:
             query_term: The term to search for.
@@ -100,8 +100,23 @@ class DataCatalog:
         results = []
         for dataset in self.datasets.values():
             for field in ["name", "description", "tags"]:
-                if query_term.lower() in str(getattr(dataset, field)).lower():
-                    results.append(dataset)
+                result = getattr(dataset, field)
+                if isinstance(result, list):
+                    if query_term.lower() in [x.lower() for x in result]:
+                        results.append(dataset)
+                        break
+                elif isinstance(result, str):
+                    if query_term.lower() in result.lower():
+                        results.append(dataset)
+                        break
+            for variable in dataset.variables.values():
+                for field in ["id", "description"]:
+                    result = getattr(variable, field)
+                    if isinstance(result, str):
+                        if query_term.lower() in result.lower():
+                            results.append(dataset)
+                            break
+                if dataset in results:
                     break
         return results
 
