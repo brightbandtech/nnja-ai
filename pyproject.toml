@@ -1,7 +1,7 @@
 [project]
 name = "nnja"
 version = "0.1.0"
-description = "Add your description here"
+description = "Find and load data from the Brightband AI-ready mirror of the NOAA NASA Joint Archive (NNJA) of Observations for Earth System Reanalysis"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -10,7 +10,6 @@ dependencies = [
     "parquet>=1.3.1",
     "pyarrow>=18.1.0",
 ]
-
 
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -26,17 +25,18 @@ nnja = { workspace = true }
 
 [dependency-groups]
 dev = [
+    "coverage>=7.6.9",
+    "mypy>=1.13.0",
     "nnja[dev]",
+    "pytest>=8.3.4",
+    "ruff>=0.8.2",
 ]
 
 [project.optional-dependencies]
-dev = [
+interactive = [
     "ipykernel",
     "jupyterlab",
-    "pytest",
-    "black",
     "matplotlib",
-    "ruff",
 ]
 
 [tool.ruff]
