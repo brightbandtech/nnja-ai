@@ -101,7 +101,9 @@ class NNJADataset:
                         variables[full_id] = NNJAVariable(var_metadata, full_id)
             else:
                 # variables.append(NNJAVariable(var_metadata, var_metadata["id"]))
-                variables[var_metadata["id"]] = NNJAVariable(var_metadata, var_metadata["id"])
+                variables[var_metadata["id"]] = NNJAVariable(
+                    var_metadata, var_metadata["id"]
+                )
         return variables
 
     def info(self) -> str:
@@ -130,12 +132,17 @@ class NNJADataset:
         match backend:
             case "pandas":
                 import pandas as pd
+
                 return pd.read_parquet(self.manifest)
             case "polars":
                 import polars as pl
+
                 return pl.scan_parquet(self.manifest)
             case "dask":
                 import dask.dataframe as dd
+
                 return dd.read_parquet(self.manifest)
             case _:
-                raise ValueError(f"Unsupported backend: {backend}. valid options are {Backend.__args__}")
+                raise ValueError(
+                    f"Unsupported backend: {backend}. valid options are {Backend.__args__}"
+                )

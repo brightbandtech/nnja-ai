@@ -58,7 +58,11 @@ class DataCatalog:
             message_types = group_metadata.get("datasets", {})
             for msg_type, msg_metadata in message_types.items():
                 # If there are multiple messages in a group, use message type name in the key.
-                key = group if len(message_types) == 1 else group+"_"+msg_metadata["name"]
+                key = (
+                    group
+                    if len(message_types) == 1
+                    else group + "_" + msg_metadata["name"]
+                )
                 try:
                     datasets[key] = NNJADataset(msg_metadata["json"])
                 except Exception as e:
