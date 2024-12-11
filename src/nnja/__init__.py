@@ -1,4 +1,5 @@
-from .catalog import DataCatalog
-from .dataset import NNJADataset
+from nnja.catalog import DataCatalog
+from nnja.dataset import NNJADataset
+from nnja.variable import NNJAVariable
 
-__all__ = ["DataCatalog", "NNJADataset"]
+__all__ = ["DataCatalog", "NNJADataset", "NNJAVariable"]

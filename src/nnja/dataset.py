@@ -1,5 +1,5 @@
-from .variable import NNJAVariable
 from nnja import io
+from nnja.variable import NNJAVariable
 from typing import Dict, List
 
 
@@ -37,14 +37,18 @@ class NNJADataset:
         Args:
             json_uri: Path or URI to the dataset's JSON metadata.
         """
+        dataset_metadata = io.read_json(json_uri)
         self.json_uri = json_uri
-        dataset_metadata = io.read_json(json_uri)  # Load JSON metadata
-        self.name = dataset_metadata["name"]
-        self.description = dataset_metadata["description"]
-        self.tags = dataset_metadata["tags"]
+        self.name: str = dataset_metadata["name"]
+        self.description: str = dataset_metadata["description"]
+        self.tags: List[str] = dataset_metadata["tags"]
         self.manifest: List[str] = dataset_metadata["manifest"]
-        self.dimensions = self._parse_dimensions(dataset_metadata.get("dimensions", []))
-        self.variables = self._expand_variables(dataset_metadata["variables"])
+        self.dimensions: Dict[str, Dict] = self._parse_dimensions(
+            dataset_metadata.get("dimensions", [])
+        )
+        self.variables: Dict[str, NNJAVariable] = self._expand_variables(
+            dataset_metadata["variables"]
+        )
 
     def __getitem__(self, variable_id: str) -> NNJAVariable:
         """

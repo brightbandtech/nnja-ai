@@ -1389,6 +1389,13 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+complete = [
+    { name = "dask", extra = ["dataframe"] },
+    { name = "ipykernel" },
+    { name = "jupyterlab" },
+    { name = "matplotlib" },
+    { name = "polars" },
+]
 dask = [
     { name = "dask", extra = ["dataframe"] },
 ]
@@ -1405,6 +1412,7 @@ polars = [
 dev = [
     { name = "coverage" },
     { name = "mypy" },
+    { name = "nnja", extra = ["complete"] },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
@@ -1418,6 +1426,7 @@ requires-dist = [
     { name = "ipykernel", marker = "extra == 'interactive'" },
     { name = "jupyterlab", marker = "extra == 'interactive'" },
     { name = "matplotlib", marker = "extra == 'interactive'" },
+    { name = "nnja", extras = ["interactive", "dask", "polars"], marker = "extra == 'complete'", editable = "." },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "parquet", specifier = ">=1.3.1" },
     { name = "polars", marker = "extra == 'polars'", specifier = ">=1.17.1" },
@@ -1428,6 +1437,7 @@ requires-dist = [
 dev = [
     { name = "coverage", specifier = ">=7.6.9" },
     { name = "mypy", specifier = ">=1.13.0" },
+    { name = "nnja", extras = ["complete"], editable = "." },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "pytest-cov", specifier = ">=6.0.0" },
     { name = "ruff", specifier = ">=0.8.2" },
