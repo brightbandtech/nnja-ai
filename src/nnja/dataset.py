@@ -1,6 +1,6 @@
 from .variable import NNJAVariable
-from .io import read_json, Backend
-from typing import Dict
+from nnja import io
+from typing import Dict, List
 
 
 class NNJADataset:
@@ -38,11 +38,11 @@ class NNJADataset:
             json_uri: Path or URI to the dataset's JSON metadata.
         """
         self.json_uri = json_uri
-        dataset_metadata = read_json(json_uri)  # Load JSON metadata
+        dataset_metadata = io.read_json(json_uri)  # Load JSON metadata
         self.name = dataset_metadata["name"]
         self.description = dataset_metadata["description"]
         self.tags = dataset_metadata["tags"]
-        self.manifest = dataset_metadata["manifest"]
+        self.manifest: List[str] = dataset_metadata["manifest"]
         self.dimensions = self._parse_dimensions(dataset_metadata.get("dimensions", []))
         self.variables = self._expand_variables(dataset_metadata["variables"])
 
@@ -101,7 +101,9 @@ class NNJADataset:
                         variables[full_id] = NNJAVariable(var_metadata, full_id)
             else:
                 # variables.append(NNJAVariable(var_metadata, var_metadata["id"]))
-                variables[var_metadata["id"]] = NNJAVariable(var_metadata, var_metadata["id"])
+                variables[var_metadata["id"]] = NNJAVariable(
+                    var_metadata, var_metadata["id"]
+                )
         return variables
 
     def info(self) -> str:
@@ -117,25 +119,17 @@ class NNJADataset:
         """List all variables with their descriptions."""
         return [var.info() for var in self.variables.values()]
 
-    def load_dataset(self, backend: Backend = "pandas"):
+    def load_dataset(self, backend: io.Backend = "pandas", **backend_kwargs):
         """
         Load the dataset into a DataFrame using the specified library.
-        TODO(#4) move this to the io module
+
         Args:
-            library: The library to use for loading the dataset ('pandas', 'polars', etc.).
+            backend: The library to use for loading the dataset ('pandas', 'polars', etc.).
+            **backend_kwargs: Additional keyword arguments to pass to the backend loader.
 
         Returns:
             DataFrame: The loaded dataset.
         """
-        match backend:
-            case "pandas":
-                import pandas as pd
-                return pd.read_parquet(self.manifest)
-            case "polars":
-                import polars as pl
-                return pl.scan_parquet(self.manifest)
-            case "dask":
-                import dask.dataframe as dd
-                return dd.read_parquet(self.manifest)
-            case _:
-                raise ValueError(f"Unsupported backend: {backend}. valid options are {Backend.__args__}")
+        files = self.manifest
+        columns = [var.id for var in self.variables.values()]
+        return io.load_parquet(files, columns, backend, **backend_kwargs)
