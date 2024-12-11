@@ -21,7 +21,7 @@ def load_parquet(
     columns: List[str],
     backend: Backend = "pandas",
     **backend_kwargs,
-) -> Union["pd.DataFrame", "pl.LazyFrame", "dd.DataFrame"]:  # noqa: F821 # type: ignore
+) -> Union["pd.DataFrame", "pl.LazyFrame", "dd.DataFrame"]:
     """Load parquet files using the specified backend; lazy if supported by the backend.
     With the current implementation, polars and dask will load lazily and preserve any
     hive partitions + columns, while pandas will load eagerly and concatenate the dataframes.
