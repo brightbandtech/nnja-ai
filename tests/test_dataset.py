@@ -2,7 +2,7 @@ from nnja.dataset import NNJADataset
 
 
 def test_dataset_initialization():
-    dataset = NNJADataset("sample_data/adpsfc_nc000001_dataset.json")
+    dataset = NNJADataset("tests/sample_data/adpsfc_nc000001_dataset.json")
     assert dataset.name == "WMOSYNOP_fixed"
     assert (
         dataset.description
@@ -14,7 +14,7 @@ def test_dataset_initialization():
 
 
 def test_variable_expansion():
-    dataset = NNJADataset("sample_data/amsu_dataset.json")
+    dataset = NNJADataset("tests/sample_data/amsu_dataset.json")
     variables = dataset.variables
     channels = [1, 2, 3, 4, 5]
     expected_variables = ["lat", "lon", "time", "said", "fovn"]
@@ -25,7 +25,7 @@ def test_variable_expansion():
 
 
 def test_get_variable():
-    dataset = NNJADataset("sample_data/amsu_dataset.json")
+    dataset = NNJADataset("tests/sample_data/amsu_dataset.json")
     variable = dataset["lat"]
     assert variable.id == "lat"
     assert variable.description == "Latitude of the observation."
