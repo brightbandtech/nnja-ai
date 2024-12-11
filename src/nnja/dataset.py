@@ -54,8 +54,7 @@ class NNJADataset:
     def __getitem__(
         self, key: Union[str, List[str]]
     ) -> Union[NNJAVariable, "NNJADataset"]:
-        """
-        Fetch a specific variable by ID or subset the dataset by a list of variable names.
+        """Fetch a specific variable by ID, or subset the dataset by a list of variable names.
 
         If a single variable ID is provided, return the variable object.
         If a list of variable names is provided, return a new dataset object with only the specified variables.
@@ -76,8 +75,7 @@ class NNJADataset:
             raise TypeError("Key must be a string or a list of strings")
 
     def _select_columns(self, columns: List[str]) -> "NNJADataset":
-        """
-        Subset the dataset by a list of variable names.
+        """Subset the dataset by a list of variable names.
 
         Args:
             columns: List of variable names to subset the dataset.
@@ -115,8 +113,7 @@ class NNJADataset:
         return dimensions
 
     def _expand_variables(self, variables_metadata: list) -> Dict[str, NNJAVariable]:
-        """
-        Expand variables from the dataset metadata into NNJAVariable objects.
+        """Expand variables from the dataset metadata into NNJAVariable objects.
 
         This is only nontrivial since we've packed variables tied to dimensions into a single
         variable definition in the metadata to avoid redundancy. Set as dict to allow for easy
@@ -160,8 +157,7 @@ class NNJADataset:
         return [var.info() for var in self.variables.values()]
 
     def load_dataset(self, backend: io.Backend = "pandas", **backend_kwargs):
-        """
-        Load the dataset into a DataFrame using the specified library.
+        """Load the dataset into a DataFrame using the specified library.
 
         Args:
             backend: The library to use for loading the dataset ('pandas', 'polars', etc.).
@@ -175,8 +171,9 @@ class NNJADataset:
         return io.load_parquet(files, columns, backend, **backend_kwargs)
 
     def sel(self, **kwargs):
-        """
-        Select data based on the provided keywords. Allows for three types of selection:
+        """Select data based on the provided keywords.
+
+        Allows for three types of selection:
             - 'variables' or 'columns': Subset the dataset by a list of variable names.
             - 'time': Subset the dataset by a time range.
             - Any extra dimensions in self.dimensions: Subset the dataset by a specific value of the dimension.

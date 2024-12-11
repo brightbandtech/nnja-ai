@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 import pytest
+from typing import Dict, Set
 
 
 @pytest.fixture
@@ -123,27 +124,48 @@ def test_get_variable():
     assert variable.description == "Latitude of the observation."
 
 
-def test_dataset_multivariable_selection_with_dim_drop(sample_dataset):
-    dataset = sample_dataset
-    sub_ds = dataset[["lat", "lon", "time"]]
-    assert isinstance(sub_ds, NNJADataset)
+class TestDatasetMultivariableSelection:
+    """Test class for dataset multivariable selection functionality."""
 
-    # check that the original dataset is not modified
-    assert "fovn" in dataset.variables
+    def test_subsetting_returns_correct_type(self, sample_dataset):
+        """Test that subsetting returns a NNJADataset instance."""
+        sub_ds = sample_dataset[["lat", "lon", "time"]]
+        assert isinstance(sub_ds, NNJADataset)
 
-    # check that the new dataset has only the selected variables
-    assert set(sub_ds.variables) == {"lat", "lon", "time"}
+    def test_original_dataset_remains_unmodified(self, sample_dataset):
+        """Test that the original dataset is not modified when creating a subset."""
+        dataset = sample_dataset
+        _ = dataset[["lat", "lon", "time"]]
+        assert "fovn" in dataset.variables
 
-    # assert that it's the same as select_columns
-    sub_ds_2 = dataset._select_columns(["lat", "lon", "time"])
-    assert sub_ds.variables.keys() == sub_ds_2.variables.keys()
+    def test_subset_contains_only_selected_variables(self, sample_dataset):
+        """Test that the subset contains only the specifically selected variables."""
+        sub_ds = sample_dataset[["lat", "lon", "time"]]
+        expected_variables: Set[str] = {"lat", "lon", "time"}
+        assert set(sub_ds.variables) == expected_variables
 
-    # assert that the unused dims are dropped
-    assert sub_ds.dimensions == {}
+    def test_subset_matches_select_columns_output(self, sample_dataset):
+        """Test that subsetting produces the same result as using _select_columns."""
+        dataset = sample_dataset
+        selected_vars = ["lat", "lon", "time"]
+        sub_ds = dataset[selected_vars]
+        sub_ds_2 = dataset._select_columns(selected_vars)
+        assert sub_ds.variables.keys() == sub_ds_2.variables.keys()
 
-    # assert that using .sel() does the same thing
-    sub_ds_3 = dataset.sel(variables=["lat", "lon", "time"])
-    assert sub_ds.variables.keys() == sub_ds_3.variables.keys()
+    def test_unused_dimensions_are_dropped(self, sample_dataset):
+        """Test that unused dimensions are dropped in the subset."""
+        dataset = sample_dataset
+        sub_ds = dataset[["lat", "lon", "time"]]
+        expected_dimensions: Dict = {}
+        assert sub_ds.dimensions == expected_dimensions
+
+    def test_sel_method_produces_same_result(self, sample_dataset):
+        """Test that .sel() method produces the same result as direct subsetting."""
+        dataset = sample_dataset
+        selected_vars = ["lat", "lon", "time"]
+        sub_ds = dataset[selected_vars]
+        sub_ds_3 = dataset.sel(variables=selected_vars)
+        assert sub_ds.variables.keys() == sub_ds_3.variables.keys()
 
 
 def test_sel_with_variables_not_in_dataset(sample_dataset):
