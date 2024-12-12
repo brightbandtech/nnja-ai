@@ -35,7 +35,7 @@ def sample_dataset(tmp_path):
         "name": "AMSU",
         "description": "AMSU data from a satellite",
         "tags": ["satellite", "amsu"],
-        "parquet_dir": str(tmp_path),
+        "parquet_root_path": str(tmp_path),
         "dimensions": [
             {
                 "channel": {

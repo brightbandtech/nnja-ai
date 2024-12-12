@@ -5,6 +5,7 @@ from nnja.io import (
     _parse_filepath_to_partitions,
     load_manifest,
 )
+from nnja.exceptions import InvalidPartitionKeyError
 import pandas as pd
 import polars as pl
 import json
@@ -79,9 +80,7 @@ def test_parse_filepath_to_partitions_valid():
 
 def test_parse_filepath_to_partitions_invalid_key():
     file_path = "foo/INVALID_KEY=2023-01-01/OBS_HOUR=12/bar.parquet"
-    with pytest.raises(
-        ValueError, match="Invalid partition key: INVALID_KEY found in file path"
-    ):
+    with pytest.raises(InvalidPartitionKeyError):
         _parse_filepath_to_partitions(file_path)
 
 
@@ -179,7 +178,5 @@ def test_load_manifest_invalid_partition_key(tmp_path, monkeypatch):
         "fsspec.filesystem", lambda _: type("MockFS", (object,), {"find": mock_find})
     )
 
-    with pytest.raises(
-        ValueError, match="Invalid partition key: INVALID_KEY found in file path"
-    ):
+    with pytest.raises(InvalidPartitionKeyError):
         load_manifest(str(parquet_dir))

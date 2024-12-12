@@ -2,9 +2,9 @@ import fsspec
 import json
 from typing import Literal, List, Union, TYPE_CHECKING
 import pandas as pd
-import re
 import logging
 
+from nnja.exceptions import InvalidPartitionKeyError
 
 if TYPE_CHECKING:
     import polars as pl
@@ -82,15 +82,14 @@ def _parse_filepath_to_partitions(file_path: str) -> dict:
     Returns:
         dict: A dictionary of partition keys and values.
     """
-    match = re.findall(r"([a-zA-Z0-9_]+)=([a-zA-Z0-9_\-]+)", file_path)
-    for key, value in match:
-        if key not in VALID_PARTITION_KEYS:
-            raise ValueError(
-                f"Invalid partition key: {key} found in file path: {file_path}."
-                + f"Valid partition keys are: {VALID_PARTITION_KEYS}"
-            )
-
-    return {key: value for key, value in match}
+    partitions = {}
+    for part in file_path.split("/"):
+        if "=" in part:
+            key, value = part.split("=", 1)
+            if key not in VALID_PARTITION_KEYS:
+                raise InvalidPartitionKeyError(key)
+            partitions[key] = value
+    return partitions
 
 
 def load_manifest(parquet_dir: str) -> "pd.DataFrame":
