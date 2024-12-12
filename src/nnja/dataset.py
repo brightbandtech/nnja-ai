@@ -6,6 +6,9 @@ import copy
 import pandas as pd
 import logging
 
+from nnja.exceptions import EmptyTimeSubsetError
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -269,6 +272,10 @@ class NNJADataset:
                     "Selection must be a pd.Timestamp, valid timestamp string, "
                     "slice, or list of pd.Timestamps or valid timestamp strings"
                 )
+        if subset_df.empty:
+            min_time = manifest_df.index.min()
+            max_time = manifest_df.index.max()
+            raise EmptyTimeSubsetError(selection, min_time, max_time)
 
         # Create a new dataset with the subsetted manifest
         new_dataset = copy.deepcopy(self)

@@ -5,6 +5,8 @@ import json
 import pytest
 from typing import Dict, Set
 
+from nnja.exceptions import EmptyTimeSubsetError
+
 
 @pytest.fixture
 def sample_dataset(tmp_path):
@@ -240,3 +242,25 @@ def test_select_and_load_with_time_and_variables(sample_dataset):
     df = subset.load_dataset()
     assert len(df) == 4
     assert set(df.columns) == set(variables)
+
+
+def test_bad_time_range(sample_dataset):
+    dataset = sample_dataset
+    time_slice = slice(
+        pd.Timestamp("2022-01-01 00:00:00"), pd.Timestamp("2022-01-02 00:18:00")
+    )
+    with pytest.raises(EmptyTimeSubsetError):
+        _ = dataset.sel(time=time_slice)
+
+
+@pytest.mark.parametrize(
+    "time_sel",
+    [
+        pd.Timestamp("2022-01-01 12:00:00"),
+        [pd.Timestamp("2022-01-01 00:00:00"), pd.Timestamp("2022-01-02 00:00:00")],
+    ],
+)
+def test_time_selection_with_invalid_time(sample_dataset, time_sel):
+    dataset = sample_dataset
+    with pytest.raises(KeyError):
+        _ = dataset.sel(time=time_sel)
