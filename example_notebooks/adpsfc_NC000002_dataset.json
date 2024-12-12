@@ -2,7 +2,7 @@
     "name": "WMOSYNOP_mobile",
     "description": "Synoptic - mobile land (originating from WMO SYNOP bulletins). Mostly India data.",
     "tags": ["surface", "fixed-station", "synoptic", "wmo", "india"],
-    "parquet_dir": "foo/bar/fake.parquet",
+    "parquet_root_path": "foo/bar/fake/parquet/root/",
     "dimensions": [
       {
         "channel": {

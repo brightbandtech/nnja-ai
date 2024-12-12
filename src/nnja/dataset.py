@@ -1,5 +1,6 @@
 from nnja import io
 from nnja.variable import NNJAVariable
+from nnja.exceptions import ManifestNotFoundError
 from typing import Dict, List, Union
 import copy
 import pandas as pd
@@ -186,8 +187,9 @@ class NNJADataset:
             DataFrame: The loaded dataset.
         """
         if self.manifest.empty:
-            logger.info("Loading manifest for dataset %s", self.name)
-            self.load_manifest()
+            raise ManifestNotFoundError(
+                "Manifest is empty. Load the manifest first with load_manifest()."
+            )
 
         files = self.manifest["file"].tolist()
         columns = [var.id for var in self.variables.values()]
