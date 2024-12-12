@@ -103,7 +103,7 @@ def test_dataset_initialization():
     )
     assert dataset.name == "WMOSYNOP_fixed"
     assert dataset.tags == ["surface", "fixed-station", "synoptic", "wmo"]
-    assert dataset.manifest is None
+    assert dataset.manifest.empty
     assert len(dataset.variables) == 3
 
 
