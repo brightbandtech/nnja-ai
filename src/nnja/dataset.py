@@ -21,7 +21,7 @@ class NNJADataset:
         name (str): Name of the dataset.
         description (str): Description of the dataset.
         tags (list): List of tags associated with the dataset.
-        parquet_dir (str): Directory containing the dataset's parquet files.
+        oarquet_root_path (str): Directory containing the dataset's parquet files.
         manifest (DataFrame): DataFrame containing the dataset's manifest of parquet partitions.
         dimensions (dict): Dict of dimensions parsed from metadata.
         variables (dict): Dict of NNJAVariable objects representing the dataset's variables.
@@ -33,7 +33,7 @@ class NNJADataset:
             f"<NNJADataset(name='{self.name}', "
             f"description='{self.description[:50]}...', "
             f"tags={self.tags}, "
-            f"parquet_dir='{self.parquet_dir}', "
+            f"parquet_root_path='{self.parquet_root_path}', "
             f"files={len(self.manifest)}, "
             f"variables={len(self.variables)})>"
         )
@@ -50,10 +50,10 @@ class NNJADataset:
         self.name: str = dataset_metadata["name"]
         self.description: str = dataset_metadata["description"]
         self.tags: List[str] = dataset_metadata["tags"]
-        self.parquet_dir: str = dataset_metadata["parquet_dir"]
+        self.parquet_root_path: str = dataset_metadata["parquet_root_path"]
         self.manifest: pd.DataFrame = pd.DataFrame()
         if not skip_manifest:
-            self.manifest = io.load_manifest(self.parquet_dir)
+            self.manifest = io.load_manifest(self.parquet_root_path)
         self.dimensions: Dict[str, Dict] = self._parse_dimensions(
             dataset_metadata.get("dimensions", [])
         )
@@ -68,7 +68,7 @@ class NNJADataset:
             NNJADataset: The dataset object with the manifest loaded.
         """
 
-        self.manifest: pd.DataFrame = io.load_manifest(self.parquet_dir)
+        self.manifest: pd.DataFrame = io.load_manifest(self.parquet_root_path)
         return self
 
     def __getitem__(
