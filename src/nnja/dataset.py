@@ -225,8 +225,53 @@ class NNJADataset:
                 raise ValueError(f"Invalid selection keyword: {key}")
         return new_dataset
 
-    def _select_time(self, time_range: List[str]) -> "NNJADataset":
-        raise NotImplementedError
+    def _select_time(
+        self, selection: Union[pd.Timestamp, str, slice, List[Union[pd.Timestamp, str]]]
+    ) -> "NNJADataset":
+        """
+        Subset the dataset by a time range.
+
+        Args:
+            selection: A single timestamp, a string that can be cast to a timestamp, a slice of timestamps,
+                       or a list of timestamps or strings that can be cast to timestamps.
+
+        Returns:
+            NNJADataset: A new dataset object with the subsetted data.
+        """
+        manifest_df = self.manifest
+
+        match selection:
+            case str():
+                try:
+                    selection = pd.to_datetime(selection)
+                    subset_df = manifest_df.loc[[selection]]
+                except ValueError:
+                    raise TypeError("Selection must be a valid timestamp string")
+            case pd.Timestamp():
+                subset_df = manifest_df.loc[[selection]]
+            case slice():
+                subset_df = manifest_df[selection]
+            case list():
+                try:
+                    selection = [
+                        pd.to_datetime(item) if isinstance(item, str) else item
+                        for item in selection
+                    ]
+                    subset_df = manifest_df.loc[selection]
+                except ValueError:
+                    raise TypeError(
+                        "All items in the list must be valid timestamps or timestamp strings"
+                    )
+            case _:
+                raise TypeError(
+                    "Selection must be a pd.Timestamp, valid timestamp string, "
+                    "slice, or list of pd.Timestamps or valid timestamp strings"
+                )
+
+        # Create a new dataset with the subsetted manifest
+        new_dataset = copy.deepcopy(self)
+        new_dataset.manifest = subset_df
+        return new_dataset
 
     def _select_extra_dimension(
         self, dim_name: str, value: Union[str, List[str]]

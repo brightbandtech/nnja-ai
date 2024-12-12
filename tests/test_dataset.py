@@ -182,3 +182,61 @@ def test_manifest_loading(sample_dataset):
     expected_bits = [f"OBS_DATE=2021-01-0{i}" for i in range(1, 5)]
     for bit in expected_bits:
         assert any(bit in file for file in manifest["file"])
+
+
+def test_select_time_single_timestamp(sample_dataset):
+    dataset = sample_dataset
+    timestamp = pd.Timestamp("2021-01-01")
+    subset = dataset.sel(time=timestamp)
+    assert len(subset.manifest) == 1
+    assert subset.manifest.index[0] == timestamp
+
+
+def test_select_time_slice(sample_dataset):
+    dataset = sample_dataset
+    time_slice = slice(
+        pd.Timestamp("2021-01-01 00:00:00"), pd.Timestamp("2021-01-02 00:18:00")
+    )
+    subset = dataset.sel(time=time_slice)
+    assert len(subset.manifest) == 2  # since it's partitioned by day
+    assert subset.manifest.index.min() == pd.Timestamp("2021-01-01 00:00:00")
+    assert subset.manifest.index.max() == pd.Timestamp("2021-01-02 00:00:00")
+
+
+def test_select_time_list(sample_dataset):
+    dataset = sample_dataset
+    timestamps = [
+        pd.Timestamp("2021-01-01 00:00:00"),
+        pd.Timestamp("2021-01-03 00:00:00"),
+    ]
+    subset = dataset.sel(time=timestamps)
+    assert len(subset.manifest) == 2
+    assert all(ts in subset.manifest.index for ts in timestamps)
+
+
+def test_select_with_str_timestamp(sample_dataset):
+    dataset = sample_dataset
+    timestamp = "2021-01-01"
+    subset = dataset.sel(time=timestamp)
+    assert len(subset.manifest) == 1
+    assert subset.manifest.index[0] == pd.Timestamp("2021-01-01")
+
+
+def test_select_both_time_and_variables(sample_dataset):
+    dataset = sample_dataset
+    timestamp = pd.Timestamp("2021-01-03")
+    variables = ["lat", "lon", "time"]
+    subset = dataset.sel(time=timestamp, variables=variables)
+    assert len(subset.manifest) == 1
+    assert subset.manifest.index[0] == timestamp
+    assert set(subset.variables) == set(variables)
+
+
+def test_select_and_load_with_time_and_variables(sample_dataset):
+    dataset = sample_dataset
+    timestamp = pd.Timestamp("2021-01-03")
+    variables = ["lat", "lon", "time"]
+    subset = dataset.sel(time=timestamp, variables=variables)
+    df = subset.load_dataset()
+    assert len(df) == 4
+    assert set(df.columns) == set(variables)
