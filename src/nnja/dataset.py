@@ -1,6 +1,7 @@
 from nnja import io
 from nnja.variable import NNJAVariable
-from typing import Dict, List
+from typing import Dict, List, Union
+import copy
 
 
 class NNJADataset:
@@ -50,17 +51,50 @@ class NNJADataset:
             dataset_metadata["variables"]
         )
 
-    def __getitem__(self, variable_id: str) -> NNJAVariable:
-        """
-        Fetch a specific variable by ID.
+    def __getitem__(
+        self, key: Union[str, List[str]]
+    ) -> Union[NNJAVariable, "NNJADataset"]:
+        """Fetch a specific variable by ID, or subset the dataset by a list of variable names.
+
+        If a single variable ID is provided, return the variable object.
+        If a list of variable names is provided, return a new dataset object with only the specified variables.
 
         Args:
-            variable_id: The ID of the variable to fetch.
+            key: The ID of the variable to fetch or a list of variable names to subset.
 
         Returns:
-            NNJAVariable: The variable object.
+            NNJAVariable or NNJADataset: The variable object if a single ID is provided,
+                                       or a DataFrame with the subsetted data if a list of variable names is provided.
         """
-        return self.variables[variable_id]
+        if isinstance(key, str):
+            # Single variable access
+            return self.variables[key]
+        elif isinstance(key, list):
+            return self._select_columns(key)
+        else:
+            raise TypeError("Key must be a string or a list of strings")
+
+    def _select_columns(self, columns: List[str]) -> "NNJADataset":
+        """Subset the dataset by a list of variable names.
+
+        Args:
+            columns: List of variable names to subset the dataset.
+
+        Returns:
+            NNJADataset: A new dataset object with only the specified variables.
+        """
+        for col in columns:
+            if col not in self.variables:
+                raise ValueError(f"Variable '{col}' not found in dataset.")
+        new_dataset = copy.deepcopy(self)
+        new_dataset.variables = {
+            k: v for k, v in self.variables.items() if k in columns
+        }
+        needed_dims = set([v.dimension for v in new_dataset.variables.values()])
+        new_dataset.dimensions = {
+            k: v for k, v in self.dimensions.items() if k in needed_dims
+        }
+        return new_dataset
 
     def _parse_dimensions(self, dimensions_metadata: list) -> dict:
         """
@@ -79,8 +113,7 @@ class NNJADataset:
         return dimensions
 
     def _expand_variables(self, variables_metadata: list) -> Dict[str, NNJAVariable]:
-        """
-        Expand variables from the dataset metadata into NNJAVariable objects.
+        """Expand variables from the dataset metadata into NNJAVariable objects.
 
         This is only nontrivial since we've packed variables tied to dimensions into a single
         variable definition in the metadata to avoid redundancy. Set as dict to allow for easy
@@ -124,8 +157,7 @@ class NNJADataset:
         return [var.info() for var in self.variables.values()]
 
     def load_dataset(self, backend: io.Backend = "pandas", **backend_kwargs):
-        """
-        Load the dataset into a DataFrame using the specified library.
+        """Load the dataset into a DataFrame using the specified library.
 
         Args:
             backend: The library to use for loading the dataset ('pandas', 'polars', etc.).
@@ -137,3 +169,43 @@ class NNJADataset:
         files = self.manifest
         columns = [var.id for var in self.variables.values()]
         return io.load_parquet(files, columns, backend, **backend_kwargs)
+
+    def sel(self, **kwargs):
+        """Select data based on the provided keywords.
+
+        Allows for three types of selection:
+            - 'variables' or 'columns': Subset the dataset by a list of variable names.
+            - 'time': Subset the dataset by a time range.
+            - Any extra dimensions in self.dimensions: Subset the dataset by a specific value of the dimension.
+        Multiple keywords can be provided to perform multiple selections.
+
+        Args:
+            **kwargs: Keywords for subsetting. Valid keywords are 'variables', 'columns', 'time',
+                    and any extra dimensions in self.dimensions.
+
+        Returns:
+            NNJADataset: A new dataset object with the subsetted data.
+        """
+        if "variables" in kwargs and "columns" in kwargs:
+            raise ValueError(
+                "Cannot provide both 'variables' and 'columns' in selection"
+            )
+        new_dataset = copy.deepcopy(self)
+        for key, value in kwargs.items():
+            if key in ["variables", "columns"]:
+                new_dataset = new_dataset._select_columns(value)
+            elif key == "time":
+                new_dataset = new_dataset._select_time(value)
+            elif key in self.dimensions:
+                new_dataset = new_dataset._select_extra_dimension(key, value)
+            else:
+                raise ValueError(f"Invalid selection keyword: {key}")
+        return new_dataset
+
+    def _select_time(self, time_range: List[str]) -> "NNJADataset":
+        raise NotImplementedError
+
+    def _select_extra_dimension(
+        self, dim_name: str, value: Union[str, List[str]]
+    ) -> "NNJADataset":
+        raise NotImplementedError
