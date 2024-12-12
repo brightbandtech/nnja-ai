@@ -1,13 +1,21 @@
 import fsspec
 import json
 from typing import Literal, List, Union, TYPE_CHECKING
+import pandas as pd
+import re
+import logging
 
-Backend = Literal["pandas", "polars", "dask"]
 
 if TYPE_CHECKING:
-    import pandas as pd
     import polars as pl
     import dask.dataframe as dd
+
+VALID_TIME_INDEX = ["OBS_DATE", "OBS_HOUR"]
+VALID_PARTITION_KEYS = ["OBS_DATE", "OBS_HOUR", "MSG_TYPE"]
+
+logger = logging.getLogger(__name__)
+
+Backend = Literal["pandas", "polars", "dask"]
 
 
 def read_json(json_uri: str) -> dict:
@@ -60,3 +68,67 @@ def load_parquet(
             raise ValueError(
                 f"Unsupported backend: {backend}. valid options are {Backend.__args__}"
             )
+
+
+def _parse_filepath_to_partitions(file_path: str) -> dict:
+    """Parse a file path to extract partition keys and values.
+
+    Assume the file path is in the format:
+        foo/col1=val1/col2=val2/.../colN=valN/bar
+
+    Args:
+        file_path (str): The file path to parse.
+
+    Returns:
+        dict: A dictionary of partition keys and values.
+    """
+    match = re.findall(r"([a-zA-Z0-9_]+)=([a-zA-Z0-9_\-]+)", file_path)
+    for key, value in match:
+        if key not in VALID_PARTITION_KEYS:
+            raise ValueError(
+                f"Invalid partition key: {key} found in file path: {file_path}."
+                + f"Valid partition keys are: {VALID_PARTITION_KEYS}"
+            )
+
+    return {key: value for key, value in match}
+
+
+def load_manifest(parquet_dir: str) -> "pd.DataFrame":
+    """Load the manifest file from the parquet directory to a DataFrame.
+
+    We assume Hive-style partitioning on GCS, and create a DataFrame with the
+    partition keys and file paths.
+
+    Args:
+        parquet_dir (str): Top-level directory containing the Hive-partitioned dataset.
+
+    Returns:
+        pd.DataFrame: DataFrame with partition keys, values, and file paths.
+    """
+    logger.debug("Loading manifest from parquet directory: %s", parquet_dir)
+    filesystem = "gcs" if parquet_dir.startswith("gs://") else "file"
+    fs = fsspec.filesystem(filesystem)
+    files = fs.find(parquet_dir, detail=True)
+    logger.debug("Found %d files in the directory.", len(files))
+    metadata = []
+    for file_path, deets in files.items():
+        if not file_path.endswith(".parquet"):
+            continue
+        # Parse Hive-style partitions
+        partition_data = _parse_filepath_to_partitions(file_path)
+        partition_data["file"] = file_path
+        partition_data["size_in_mb"] = deets["size"]
+        metadata.append(partition_data)
+
+    if not metadata:
+        raise FileNotFoundError(f"No parquet files found in {parquet_dir}")
+    df = pd.DataFrame(metadata)
+    df["size_in_mb"] = df["size_in_mb"] / (1024 * 1024)
+
+    for time_index in VALID_TIME_INDEX:
+        if time_index in df.columns:
+            df[time_index] = pd.to_datetime(df[time_index])
+            df.set_index(time_index, inplace=True)
+            break
+
+    return df

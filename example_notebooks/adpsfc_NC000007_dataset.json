@@ -2,8 +2,7 @@
     "name": "BUFRSYNOP_fixed",
     "description": "The surface data from METAR stations at airports. Mostly US/Europe data.",
     "tags": ["surface", "aviation", "metar", "sfc", "temperature", "precipitation"],
-    "manifest": [
-    ],
+    "parquet_dir": "foo/bar/fake.parquet",
     "dimensions": [
       {
         "channel": {
