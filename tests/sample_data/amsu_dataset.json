@@ -2,11 +2,7 @@
     "name": "amsu_sample_data",
     "description": "Sample AMSU dataset with temperature brightness values and geospatial metadata.",
     "tags": ["amsu", "sample", "brightness_temperature", "geospatial"],
-    "manifest": [
-      "amsu_data.parquet/OBS_DATE=2020-01-01/a6d3749324aa4b41aa4c9c716b3b7923-0.parquet",
-      "amsu_data.parquet/OBS_DATE=2020-01-02/a6d3749324aa4b41aa4c9c716b3b7923-0.parquet",
-      "amsu_data.parquet/OBS_DATE=2020-01-03/a6d3749324aa4b41aa4c9c716b3b7923-0.parquet"
-    ],
+    "parquet_root_path": "foo/bar/fake/parquet/root/",
     "dimensions": [
       {
         "channel": {

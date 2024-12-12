@@ -28,15 +28,14 @@ def sample_dataset(tmp_path):
             "std_dev_brightness_temp_005": np.random.uniform(0, 10, days * 4),
         }
     )
-    df["date"] = df["time"].dt.date
-    df.to_parquet(tmp_path / "amsu.parquet", partition_cols=["date"])
-    files = [f"amsu.parquet/date={date}" for date in df["date"].unique()]
+    df["OBS_DATE"] = df["time"].dt.date
+    df.to_parquet(tmp_path / "amsu.parquet", partition_cols=["OBS_DATE"])
 
     metadata = {
         "name": "AMSU",
         "description": "AMSU data from a satellite",
         "tags": ["satellite", "amsu"],
-        "manifest": files,
+        "parquet_root_path": str(tmp_path),
         "dimensions": [
             {
                 "channel": {
@@ -99,15 +98,17 @@ def sample_dataset(tmp_path):
 
 
 def test_dataset_initialization():
-    dataset = NNJADataset("tests/sample_data/adpsfc_NC000001_dataset.json")
+    dataset = NNJADataset(
+        "tests/sample_data/adpsfc_NC000001_dataset.json", skip_manifest=True
+    )
     assert dataset.name == "WMOSYNOP_fixed"
     assert dataset.tags == ["surface", "fixed-station", "synoptic", "wmo"]
-    assert len(dataset.manifest) == 0
+    assert dataset.manifest.empty
     assert len(dataset.variables) == 3
 
 
 def test_variable_expansion():
-    dataset = NNJADataset("tests/sample_data/amsu_dataset.json")
+    dataset = NNJADataset("tests/sample_data/amsu_dataset.json", skip_manifest=True)
     variables = dataset.variables
     channels = [1, 2, 3, 4, 5]
     expected_variables = ["lat", "lon", "time", "said", "fovn"]
@@ -118,7 +119,7 @@ def test_variable_expansion():
 
 
 def test_get_variable():
-    dataset = NNJADataset("tests/sample_data/amsu_dataset.json")
+    dataset = NNJADataset("tests/sample_data/amsu_dataset.json", skip_manifest=True)
     variable = dataset["lat"]
     assert variable.id == "lat"
     assert variable.description == "Latitude of the observation."
@@ -172,3 +173,12 @@ def test_sel_with_variables_not_in_dataset(sample_dataset):
     dataset = sample_dataset
     with pytest.raises(ValueError):
         _ = dataset.sel(variables=["lat", "lon", "time", "foo"])
+
+
+def test_manifest_loading(sample_dataset):
+    dataset = sample_dataset
+    manifest = dataset.manifest
+    assert len(manifest) == 4
+    expected_bits = [f"OBS_DATE=2021-01-0{i}" for i in range(1, 5)]
+    for bit in expected_bits:
+        assert any(bit in file for file in manifest["file"])

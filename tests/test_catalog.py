@@ -7,7 +7,7 @@ catalog_path = "tests/sample_data/catalog.json"
 
 @pytest.fixture
 def catalog():
-    return DataCatalog(catalog_path)
+    return DataCatalog(catalog_path, skip_manifest=True)
 
 
 def test_generate_catalog():

@@ -22,16 +22,17 @@ class DataCatalog:
         datasets (dict): Dictionary of dataset instances or subtypes.
     """
 
-    def __init__(self, json_uri: str):
+    def __init__(self, json_uri: str, skip_manifest: bool = False):
         """
         Initialize the DataCatalog from a JSON metadata file.
 
         Args:
             json_uri: Path to the JSON file (local or cloud storage).
+            skip_manifest: Skip loading the manifest for each dataset.
         """
         self.json_uri = json_uri
         self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(json_uri)
-        self.datasets: Dict[str, NNJADataset] = self._parse_datasets()
+        self.datasets: Dict[str, NNJADataset] = self._parse_datasets(skip_manifest)
 
     def __getitem__(self, dataset_name: str) -> NNJADataset:
         """
@@ -45,10 +46,12 @@ class DataCatalog:
         """
         return self.datasets[dataset_name]
 
-    def _parse_datasets(self) -> dict:
+    def _parse_datasets(self, skip_manifest: bool = False) -> Dict[str, NNJADataset]:
         """
         Parse datasets from the catalog metadata and initialize NNJADataset instances.
 
+        Args:
+            skip_manifest: Skip loading the manifest for each dataset.
 
         Returns:
             dict: A dictionary of dataset instances or subtypes if multiple exist.
@@ -64,7 +67,7 @@ class DataCatalog:
                     else group + "_" + msg_metadata["name"]
                 )
                 try:
-                    datasets[key] = NNJADataset(msg_metadata["json"])
+                    datasets[key] = NNJADataset(msg_metadata["json"], skip_manifest)
                 except Exception as e:
                     if STRICT_LOAD:
                         raise RuntimeError(
