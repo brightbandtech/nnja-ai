@@ -8,14 +8,14 @@ import logging
 import warnings
 from nnja.exceptions import EmptyTimeSubsetError
 
+# Define the valid types for time selection
 DatetimeIndexKey = Union[
-    str,  # A string that can be parsed into a datetime (e.g., "2024-12-12")
-    pd.Timestamp,  # A specific timestamp
-    List[str],  # List of strings that can be converted to datetimes
-    List[pd.Timestamp],  # List of Timestamps
-    slice,  # Slicing using Timestamps or strs (e.g., slice(pd.Timestamp(...), pd.Timestamp(...)))
+    str,
+    pd.Timestamp,
+    List[str],
+    List[pd.Timestamp],
+    slice,
 ]
-
 
 logger = logging.getLogger(__name__)
 
