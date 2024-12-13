@@ -133,8 +133,8 @@ class TestLoadManifest:
         """Test that the index is set correctly to OBS_DATE"""
         assert self.result.index.name == "OBS_DATE"
         assert self.result.index.tolist() == [
-            pd.Timestamp("2023-01-01"),
-            pd.Timestamp("2023-01-01"),
+            pd.Timestamp("2023-01-01 00:00:00 UTC"),
+            pd.Timestamp("2023-01-01 00:00:00 UTC"),
         ]
 
     def test_correct_files_and_sizes(self):

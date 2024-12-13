@@ -61,9 +61,12 @@ def load_parquet(
 
             return pl.scan_parquet(parquet_uris, **backend_kwargs).select(columns)
         case "dask":
+            logger.info("Loading parquet files using Dask.")
             import dask.dataframe as dd
 
-            return dd.read_parquet(parquet_uris, columns=columns, **backend_kwargs)
+            # TODO cleanup backend kwargs
+            df = dd.read_parquet(parquet_uris, **backend_kwargs)
+            return df[columns]
         case _:
             raise ValueError(
                 f"Unsupported backend: {backend}. valid options are {Backend.__args__}"
@@ -115,7 +118,8 @@ def load_manifest(parquet_dir: str) -> "pd.DataFrame":
             continue
         # Parse Hive-style partitions
         partition_data = _parse_filepath_to_partitions(file_path)
-        partition_data["file"] = file_path
+        prefix = "gs://" if filesystem == "gcs" else ""
+        partition_data["file"] = prefix + file_path
         partition_data["size_in_mb"] = deets["size"]
         metadata.append(partition_data)
 
@@ -128,6 +132,7 @@ def load_manifest(parquet_dir: str) -> "pd.DataFrame":
         if time_index in df.columns:
             df[time_index] = pd.to_datetime(df[time_index])
             df.set_index(time_index, inplace=True)
+            df.index = df.index.tz_localize("UTC")
             break
 
     return df

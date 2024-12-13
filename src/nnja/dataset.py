@@ -5,6 +5,17 @@ from typing import Dict, List, Union
 import copy
 import pandas as pd
 import logging
+import warnings
+from nnja.exceptions import EmptyTimeSubsetError
+
+# Define the valid types for time selection
+DatetimeIndexKey = Union[
+    str,
+    pd.Timestamp,
+    List[str],
+    List[pd.Timestamp],
+    slice,
+]
 
 logger = logging.getLogger(__name__)
 
@@ -227,8 +238,90 @@ class NNJADataset:
                 raise ValueError(f"Invalid selection keyword: {key}")
         return new_dataset
 
-    def _select_time(self, time_range: List[str]) -> "NNJADataset":
-        raise NotImplementedError
+    def _select_time(self, selection: DatetimeIndexKey) -> "NNJADataset":
+        """
+        Subset the dataset by a time range.
+
+        Args:
+            selection: A single timestamp, a string that can be cast to a timestamp, a slice of timestamps,
+                       or a list of timestamps or strings that can be cast to timestamps.
+
+        Returns:
+            NNJADataset: A new dataset object with the subsetted data.
+        """
+        manifest_df = self.manifest
+
+        def localize_to_utc(dt):
+            if dt.tzinfo is None:
+                warnings.warn(f"Naive datetime {dt} assumed to be in UTC", UserWarning)
+                return dt.tz_localize("UTC")
+            if str(dt.tzinfo) != "UTC":
+                warnings.warn(
+                    f"Non-UTC timezone {dt.tzinfo} converted to UTC", UserWarning
+                )
+                dt = dt.tz_convert("UTC")
+            return dt
+
+        match selection:
+            case str():
+                try:
+                    selection = pd.to_datetime(selection)
+                    selection = localize_to_utc(selection)
+                    subset_df = manifest_df.loc[[selection]]
+                except ValueError:
+                    raise TypeError("Selection must be a valid timestamp string")
+            case pd.Timestamp():
+                selection = localize_to_utc(selection)
+                subset_df = manifest_df.loc[[selection]]
+            case slice():
+                start = (
+                    localize_to_utc(pd.to_datetime(selection.start))
+                    if selection.start
+                    else None
+                )
+                stop = (
+                    localize_to_utc(pd.to_datetime(selection.stop))
+                    if selection.stop
+                    else None
+                )
+                subset_df = manifest_df.loc[start:stop]
+            case list():
+                try:
+                    selection = [
+                        localize_to_utc(pd.to_datetime(item))
+                        if isinstance(item, str)
+                        else localize_to_utc(item)
+                        for item in selection
+                    ]
+                    subset_df = manifest_df.loc[selection]
+                except ValueError:
+                    raise TypeError(
+                        "All items in the list must be valid timestamps or timestamp strings"
+                    )
+            case _:
+                raise TypeError(
+                    "Selection must be a pd.Timestamp, valid timestamp string, "
+                    "slice, or list of pd.Timestamps or valid timestamp strings"
+                )
+        old_min_time = manifest_df.index.min()
+        old_max_time = manifest_df.index.max()
+        new_min_time = subset_df.index.min()
+        new_max_time = subset_df.index.max()
+        logger.debug(
+            "Time subset: %s: %s -> %s to %s -> %s",
+            selection,
+            old_min_time,
+            old_max_time,
+            new_min_time,
+            new_max_time,
+        )
+        if subset_df.empty:
+            raise EmptyTimeSubsetError()
+
+        # Create a new dataset with the subsetted manifest
+        new_dataset = copy.deepcopy(self)
+        new_dataset.manifest = subset_df
+        return new_dataset
 
     def _select_extra_dimension(
         self, dim_name: str, value: Union[str, List[str]]

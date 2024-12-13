@@ -19,3 +19,11 @@ class ManifestNotFoundError(NNJAError):
     def __init__(self, message="Manifest not loaded"):
         self.message = message
         super().__init__(self.message)
+
+
+class EmptyTimeSubsetError(NNJAError):
+    """Exception raised when the time subset results in an empty DataFrame."""
+
+    def __init__(self, message="Time subset resulted in an empty DataFrame"):
+        self.message = message
+        super().__init__(self.message)
