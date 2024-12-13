@@ -303,13 +303,20 @@ class NNJADataset:
                     "Selection must be a pd.Timestamp, valid timestamp string, "
                     "slice, or list of pd.Timestamps or valid timestamp strings"
                 )
+        old_min_time = manifest_df.index.min()
+        old_max_time = manifest_df.index.max()
+        new_min_time = subset_df.index.min()
+        new_max_time = subset_df.index.max()
+        logger.debug(
+            "Time subset: %s: %s -> %s to %s -> %s",
+            selection,
+            old_min_time,
+            old_max_time,
+            new_min_time,
+            new_max_time,
+        )
         if subset_df.empty:
-            min_time = manifest_df.index.min()
-            max_time = manifest_df.index.max()
-            raise EmptyTimeSubsetError(
-                f"Time subset resulted in an empty DataFrame. "
-                f"Selection: {selection}, Min time: {min_time}, Max time: {max_time}"
-            )
+            raise EmptyTimeSubsetError()
 
         # Create a new dataset with the subsetted manifest
         new_dataset = copy.deepcopy(self)
