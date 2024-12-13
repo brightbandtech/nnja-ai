@@ -1383,6 +1383,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fsspec" },
     { name = "gcsfs" },
+    { name = "jsonschema" },
     { name = "pandas" },
     { name = "parquet" },
     { name = "pyarrow" },
@@ -1424,6 +1425,7 @@ requires-dist = [
     { name = "fsspec", specifier = ">=2024.10.0" },
     { name = "gcsfs", specifier = ">=2024.10.0" },
     { name = "ipykernel", marker = "extra == 'interactive'" },
+    { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "jupyterlab", marker = "extra == 'interactive'" },
     { name = "matplotlib", marker = "extra == 'interactive'" },
     { name = "nnja", extras = ["interactive", "dask", "polars"], marker = "extra == 'complete'", editable = "." },

@@ -1,8 +1,9 @@
 import fsspec
 import json
-from typing import Literal, List, Union, TYPE_CHECKING
+from typing import Literal, List, Union, Optional, TYPE_CHECKING
 import pandas as pd
 import logging
+import jsonschema
 
 from nnja.exceptions import InvalidPartitionKeyError
 
@@ -18,10 +19,28 @@ logger = logging.getLogger(__name__)
 Backend = Literal["pandas", "polars", "dask"]
 
 
-def read_json(json_uri: str) -> dict:
-    """Read a JSON file from a URI. Supports local and cloud storage."""
+def read_json(json_uri: str, schema_path: Optional[str] = None) -> dict:
+    """Read and validate a JSON file from a URI.
+
+    Supports local and cloud storage URIs. If a JSON schema path is provided,
+    the JSON file will be validated against the schema.
+
+    Args:
+    json_uri: URI pointing to the JSON file.
+    schema_path: Path to the JSON schema file for validation.
+
+    Returns:
+    dict: The loaded JSON data.
+    """
+
     with fsspec.open(json_uri, mode="r") as f:
-        return json.load(f)
+        data = json.load(f)
+    if schema_path:
+        with fsspec.open(schema_path, mode="r") as f:
+            schema = json.load(f)
+        jsonschema.validate(data, schema)
+        logger.debug("JSON file validated against schema.")
+    return data
 
 
 def load_parquet(

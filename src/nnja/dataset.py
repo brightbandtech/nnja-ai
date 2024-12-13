@@ -6,6 +6,7 @@ import copy
 import pandas as pd
 import logging
 import warnings
+import pathlib
 from nnja.exceptions import EmptyTimeSubsetError
 
 # Define the valid types for time selection
@@ -38,6 +39,10 @@ class NNJADataset:
         variables (dict): Dict of NNJAVariable objects representing the dataset's variables.
     """
 
+    dataset_json_schema = (
+        pathlib.Path(__file__).parent.parent / "schemas/dataset_schema_v1.json"
+    )
+
     def __repr__(self):
         """Return a concise string representation of the dataset."""
         return (
@@ -56,8 +61,8 @@ class NNJADataset:
         Args:
             json_uri: Path or URI to the dataset's JSON metadata.
         """
-        dataset_metadata = io.read_json(json_uri)
         self.json_uri = json_uri
+        dataset_metadata = io.read_json(json_uri, self.dataset_json_schema)
         self.name: str = dataset_metadata["name"]
         self.description: str = dataset_metadata["description"]
         self.tags: List[str] = dataset_metadata["tags"]
