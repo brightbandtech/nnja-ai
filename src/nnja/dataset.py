@@ -8,6 +8,14 @@ import logging
 import warnings
 from nnja.exceptions import EmptyTimeSubsetError
 
+DatetimeIndexKey = Union[
+    str,  # A string that can be parsed into a datetime (e.g., "2024-12-12")
+    pd.Timestamp,  # A specific timestamp
+    List[str],  # List of strings that can be converted to datetimes
+    List[pd.Timestamp],  # List of Timestamps
+    slice,  # Slicing using Timestamps or strs (e.g., slice(pd.Timestamp(...), pd.Timestamp(...)))
+]
+
 
 logger = logging.getLogger(__name__)
 
@@ -230,9 +238,7 @@ class NNJADataset:
                 raise ValueError(f"Invalid selection keyword: {key}")
         return new_dataset
 
-    def _select_time(
-        self, selection: Union[pd.Timestamp, str, slice, List[Union[pd.Timestamp, str]]]
-    ) -> "NNJADataset":
+    def _select_time(self, selection: DatetimeIndexKey) -> "NNJADataset":
         """
         Subset the dataset by a time range.
 
