@@ -6,8 +6,6 @@ import copy
 import pandas as pd
 import logging
 import warnings
-
-
 from nnja.exceptions import EmptyTimeSubsetError
 
 
