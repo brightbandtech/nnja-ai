@@ -4,6 +4,7 @@ import pandas as pd
 import json
 import pytest
 from typing import Dict, Set
+import warnings
 
 from nnja.exceptions import EmptyTimeSubsetError
 
@@ -186,47 +187,129 @@ def test_manifest_loading(sample_dataset):
         assert any(bit in file for file in manifest["file"])
 
 
-def test_select_time_single_timestamp(sample_dataset):
-    dataset = sample_dataset
-    timestamp = pd.Timestamp("2021-01-01")
-    subset = dataset.sel(time=timestamp)
-    assert len(subset.manifest) == 1
-    assert subset.manifest.index[0] == timestamp
+class TestTimeSelectionTimeZoneBehavior:
+    """Test class for time selection and time zone behavior."""
 
+    def test_select_time_single_timestamp_notz(self, sample_dataset):
+        # Test that selecting a single nontz timestamp works as expected, returns same but with UTC tz
+        dataset = sample_dataset
+        timestamp = pd.Timestamp("2021-01-01")
+        with warnings.catch_warnings(record=True):
+            with pytest.warns(
+                UserWarning,
+                match="Naive datetime 2021-01-01 00:00:00 assumed to be in UTC",
+            ):
+                subset = dataset.sel(time=timestamp)
+        assert len(subset.manifest) == 1
+        assert subset.manifest.index[0] == timestamp.tz_localize("UTC")
 
-def test_select_time_slice(sample_dataset):
-    dataset = sample_dataset
-    time_slice = slice(
-        pd.Timestamp("2021-01-01 00:00:00"), pd.Timestamp("2021-01-02 00:18:00")
-    )
-    subset = dataset.sel(time=time_slice)
-    assert len(subset.manifest) == 2  # since it's partitioned by day
-    assert subset.manifest.index.min() == pd.Timestamp("2021-01-01 00:00:00")
-    assert subset.manifest.index.max() == pd.Timestamp("2021-01-02 00:00:00")
+    def test_select_time_slice_notz(self, sample_dataset):
+        # Test that selecting a nontz time slice works as expected, returns same but with UTC tz
+        dataset = sample_dataset
+        time_slice = slice(pd.Timestamp("2021-01-01"), pd.Timestamp("2021-01-02"))
+        with warnings.catch_warnings(record=True):
+            with pytest.warns(
+                UserWarning,
+                match="Naive datetime 2021-01-01 00:00:00 assumed to be in UTC",
+            ):
+                subset = dataset.sel(time=time_slice)
+        assert len(subset.manifest) == 2  # since it's partitioned by day
+        assert subset.manifest.index.min() == pd.Timestamp(
+            "2021-01-01 00:00:00", tz="UTC"
+        )
+        assert subset.manifest.index.max() == pd.Timestamp(
+            "2021-01-02 00:00:00", tz="UTC"
+        )
 
+    def test_select_time_list_notz(self, sample_dataset):
+        # Test that selecting a list of nontz timestamps works as expected, returns same but with UTC tz
+        dataset = sample_dataset
+        timestamps = [
+            pd.Timestamp("2021-01-01 00:00:00"),
+            pd.Timestamp("2021-01-03 00:00:00"),
+        ]
+        with warnings.catch_warnings(record=True):
+            with pytest.warns(
+                UserWarning,
+                match="Naive datetime 2021-01-01 00:00:00 assumed to be in UTC",
+            ):
+                subset = dataset.sel(time=timestamps)
+        assert len(subset.manifest) == 2
+        assert all(ts.tz_localize("UTC") in subset.manifest.index for ts in timestamps)
 
-def test_select_time_list(sample_dataset):
-    dataset = sample_dataset
-    timestamps = [
-        pd.Timestamp("2021-01-01 00:00:00"),
-        pd.Timestamp("2021-01-03 00:00:00"),
-    ]
-    subset = dataset.sel(time=timestamps)
-    assert len(subset.manifest) == 2
-    assert all(ts in subset.manifest.index for ts in timestamps)
+    def test_select_with_str_timestamp_notz(self, sample_dataset):
+        # Test that selecting a string timestamp works as expected, returns same but with UTC tz
+        dataset = sample_dataset
+        timestamp = "2021-01-01"
+        with warnings.catch_warnings(record=True):
+            with pytest.warns(
+                UserWarning,
+                match="Naive datetime 2021-01-01 00:00:00 assumed to be in UTC",
+            ):
+                subset = dataset.sel(time=timestamp)
+        assert len(subset.manifest) == 1
+        assert subset.manifest.index[0] == pd.Timestamp(timestamp).tz_localize("UTC")
 
+    def test_select_time_single_timestamp_utc(self, sample_dataset):
+        dataset = sample_dataset
+        timestamp = pd.Timestamp("2021-01-01", tz="UTC")
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("error")
+            subset = dataset.sel(time=timestamp)
+        assert len(subset.manifest) == 1
+        assert subset.manifest.index[0] == timestamp
 
-def test_select_with_str_timestamp(sample_dataset):
-    dataset = sample_dataset
-    timestamp = "2021-01-01"
-    subset = dataset.sel(time=timestamp)
-    assert len(subset.manifest) == 1
-    assert subset.manifest.index[0] == pd.Timestamp("2021-01-01")
+    def test_select_time_slice_utc(self, sample_dataset):
+        dataset = sample_dataset
+        time_slice = slice(
+            pd.Timestamp("2021-01-01", tz="UTC"), pd.Timestamp("2021-01-02", tz="UTC")
+        )
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("error")
+            subset = dataset.sel(time=time_slice)
+        assert len(subset.manifest) == 2  # since it's partitioned by day
+        assert subset.manifest.index.min() == pd.Timestamp("2021-01-01", tz="UTC")
+        assert subset.manifest.index.max() == pd.Timestamp("2021-01-02", tz="UTC")
+
+    def test_select_time_list_utc(self, sample_dataset):
+        dataset = sample_dataset
+        timestamps = [
+            pd.Timestamp("2021-01-01", tz="UTC"),
+            pd.Timestamp("2021-01-03", tz="UTC"),
+        ]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            subset = dataset.sel(time=timestamps)
+        assert len(subset.manifest) == 2
+        assert all(ts in subset.manifest.index for ts in timestamps)
+
+    def test_select_with_different_timezone(self, sample_dataset):
+        # Note: this is stupid behavior, but it is conceivable that someone might do this
+        dataset = sample_dataset
+        timestamp = pd.Timestamp("2020-12-31 16:00:00", tz="US/Pacific")
+        with warnings.catch_warnings(record=True):
+            with pytest.warns(
+                UserWarning, match="Non-UTC timezone US/Pacific converted to UTC"
+            ):
+                subset = dataset.sel(time=timestamp)
+            subset = dataset.sel(time=timestamp)
+        assert len(subset.manifest) == 1
+        assert subset.manifest.index[0] == pd.Timestamp("2021-01-01", tz="UTC")
+
+    def test_empty_time_subset(self, sample_dataset):
+        dataset = sample_dataset
+        with warnings.catch_warnings(record=True):
+            with pytest.raises(
+                EmptyTimeSubsetError, match="Time subset resulted in an empty DataFrame"
+            ):
+                dataset.sel(
+                    time=slice(pd.Timestamp("1900-01-01"), pd.Timestamp("1900-01-02"))
+                )
 
 
 def test_select_both_time_and_variables(sample_dataset):
     dataset = sample_dataset
-    timestamp = pd.Timestamp("2021-01-03")
+    timestamp = pd.Timestamp("2021-01-03 00:00:00", tz="UTC")
     variables = ["lat", "lon", "time"]
     subset = dataset.sel(time=timestamp, variables=variables)
     assert len(subset.manifest) == 1
@@ -238,7 +321,11 @@ def test_select_and_load_with_time_and_variables(sample_dataset):
     dataset = sample_dataset
     timestamp = pd.Timestamp("2021-01-03")
     variables = ["lat", "lon", "time"]
-    subset = dataset.sel(time=timestamp, variables=variables)
+    with warnings.catch_warnings(record=True):
+        with pytest.warns(
+            UserWarning, match="Naive datetime 2021-01-03 00:00:00 assumed to be in UTC"
+        ):
+            subset = dataset.sel(time=timestamp, variables=variables)
     df = subset.load_dataset()
     assert len(df) == 4
     assert set(df.columns) == set(variables)
@@ -249,8 +336,9 @@ def test_bad_time_range(sample_dataset):
     time_slice = slice(
         pd.Timestamp("2022-01-01 00:00:00"), pd.Timestamp("2022-01-02 00:18:00")
     )
-    with pytest.raises(EmptyTimeSubsetError):
-        _ = dataset.sel(time=time_slice)
+    with warnings.catch_warnings(record=True):
+        with pytest.raises(EmptyTimeSubsetError):
+            _ = dataset.sel(time=time_slice)
 
 
 @pytest.mark.parametrize(
@@ -263,4 +351,5 @@ def test_bad_time_range(sample_dataset):
 def test_time_selection_with_invalid_time(sample_dataset, time_sel):
     dataset = sample_dataset
     with pytest.raises(KeyError):
-        _ = dataset.sel(time=time_sel)
+        with warnings.catch_warnings(record=True):
+            _ = dataset.sel(time=time_sel)

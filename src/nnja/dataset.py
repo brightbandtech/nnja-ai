@@ -5,6 +5,8 @@ from typing import Dict, List, Union
 import copy
 import pandas as pd
 import logging
+import warnings
+
 
 from nnja.exceptions import EmptyTimeSubsetError
 
@@ -245,21 +247,46 @@ class NNJADataset:
         """
         manifest_df = self.manifest
 
+        def localize_to_utc(dt):
+            if dt.tzinfo is None:
+                warnings.warn(f"Naive datetime {dt} assumed to be in UTC", UserWarning)
+                return dt.tz_localize("UTC")
+            if str(dt.tzinfo) != "UTC":
+                warnings.warn(
+                    f"Non-UTC timezone {dt.tzinfo} converted to UTC", UserWarning
+                )
+                dt = dt.tz_convert("UTC")
+            return dt
+
         match selection:
             case str():
                 try:
                     selection = pd.to_datetime(selection)
+                    selection = localize_to_utc(selection)
                     subset_df = manifest_df.loc[[selection]]
                 except ValueError:
                     raise TypeError("Selection must be a valid timestamp string")
             case pd.Timestamp():
+                selection = localize_to_utc(selection)
                 subset_df = manifest_df.loc[[selection]]
             case slice():
-                subset_df = manifest_df[selection]
+                start = (
+                    localize_to_utc(pd.to_datetime(selection.start))
+                    if selection.start
+                    else None
+                )
+                stop = (
+                    localize_to_utc(pd.to_datetime(selection.stop))
+                    if selection.stop
+                    else None
+                )
+                subset_df = manifest_df.loc[start:stop]
             case list():
                 try:
                     selection = [
-                        pd.to_datetime(item) if isinstance(item, str) else item
+                        localize_to_utc(pd.to_datetime(item))
+                        if isinstance(item, str)
+                        else localize_to_utc(item)
                         for item in selection
                     ]
                     subset_df = manifest_df.loc[selection]
@@ -275,7 +302,10 @@ class NNJADataset:
         if subset_df.empty:
             min_time = manifest_df.index.min()
             max_time = manifest_df.index.max()
-            raise EmptyTimeSubsetError(selection, min_time, max_time)
+            raise EmptyTimeSubsetError(
+                f"Time subset resulted in an empty DataFrame. "
+                f"Selection: {selection}, Min time: {min_time}, Max time: {max_time}"
+            )
 
         # Create a new dataset with the subsetted manifest
         new_dataset = copy.deepcopy(self)
