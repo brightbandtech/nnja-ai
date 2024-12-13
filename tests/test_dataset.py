@@ -45,6 +45,7 @@ def sample_dataset(tmp_path):
                     "description": "AMSU channel number",
                     "values": [1, 2, 3, 4, 5],
                     "format_str": "03.0f",
+                    "units": None,
                 }
             }
         ],
