@@ -6,8 +6,8 @@ import copy
 import pandas as pd
 import logging
 import warnings
-import pathlib
 from nnja.exceptions import EmptyTimeSubsetError
+from importlib import resources
 
 # Define the valid types for time selection
 DatetimeIndexKey = Union[
@@ -39,10 +39,6 @@ class NNJADataset:
         variables (dict): Dict of NNJAVariable objects representing the dataset's variables.
     """
 
-    dataset_json_schema = (
-        pathlib.Path(__file__).parent.parent / "schemas/dataset_schema_v1.json"
-    )
-
     def __repr__(self):
         """Return a concise string representation of the dataset."""
         return (
@@ -61,8 +57,13 @@ class NNJADataset:
         Args:
             json_uri: Path or URI to the dataset's JSON metadata.
         """
+        import nnja.schemas
+
+        dataset_schema = resources.files(nnja.schemas).joinpath(
+            "dataset_schema_v1.json"
+        )
         self.json_uri = json_uri
-        dataset_metadata = io.read_json(json_uri, self.dataset_json_schema)
+        dataset_metadata = io.read_json(json_uri, dataset_schema)
         self.name: str = dataset_metadata["name"]
         self.description: str = dataset_metadata["description"]
         self.tags: List[str] = dataset_metadata["tags"]
