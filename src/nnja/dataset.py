@@ -18,6 +18,15 @@ DatetimeIndexKey = Union[
     slice,
 ]
 
+DimensionIndexKey = Union[
+    float,
+    int,
+    List[float],
+    List[int],
+    slice,
+]
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,6 +73,7 @@ class NNJADataset:
         )
         self.json_uri = json_uri
         dataset_metadata = io.read_json(json_uri, dataset_schema)
+        self.dataset_metadata = dataset_metadata
         self.name: str = dataset_metadata["name"]
         self.description: str = dataset_metadata["description"]
         self.tags: List[str] = dataset_metadata["tags"]
@@ -137,6 +147,9 @@ class NNJADataset:
         """
         Parse dimensions from metadata.
 
+        Dimensions stored in the metadata must be unique, numerical, and must be sorted;
+        this is to ensure that the dimension values can be used for subsetting.
+
         Args:
             dimensions_metadata: List of dimension definitions.
 
@@ -146,6 +159,14 @@ class NNJADataset:
         dimensions = {}
         for dim in dimensions_metadata:
             for name, metadata in dim.items():
+                if len(metadata["values"]) != len(set(metadata["values"])):
+                    raise ValueError(f"Dimension '{name}' values must be unique.")
+                if not all(isinstance(i, (int, float)) for i in metadata["values"]):
+                    raise ValueError(
+                        f"Dimension '{name}' values must be integers or floats."
+                    )
+                if metadata["values"] != sorted(metadata["values"]):
+                    raise ValueError(f"Dimension '{name}' values must be sorted.")
                 dimensions[name] = metadata
         return dimensions
 
@@ -167,17 +188,40 @@ class NNJADataset:
             if var_metadata.get("dimension"):
                 dim_name = var_metadata["dimension"]
                 dim = self.dimensions.get(dim_name)
+
                 if dim:
-                    for value in dim["values"]:
-                        formatted_value = f"{value:{dim['format_str']}}"
-                        full_id = f"{var_metadata['id']}_{formatted_value}"
-                        # variables.append(NNJAVariable(var_metadata, full_id))
-                        variables[full_id] = NNJAVariable(var_metadata, full_id)
+                    variables.update(
+                        self._expand_variable_with_dimension(
+                            var_metadata, dim["values"]
+                        )
+                    )
             else:
-                # variables.append(NNJAVariable(var_metadata, var_metadata["id"]))
                 variables[var_metadata["id"]] = NNJAVariable(
                     var_metadata, var_metadata["id"]
                 )
+        return variables
+
+    def _expand_variable_with_dimension(
+        self, var_metadata: dict, dim_values: list
+    ) -> Dict[str, NNJAVariable]:
+        """Expand a variable tied to a dimension into NNJAVariable objects.
+
+        dim_values can either be the full set of values for the dimension, or a subset of values
+        if selecting a subset of the dataset using _select_extra_dimension.
+
+        Args:
+            var_metadata: Variable definition.
+            dim_values: List of dimension values.
+
+        Returns:
+            Dict of NNJAVariable objects.
+        """
+        variables = {}
+        dim_fmt_str = self.dimensions[var_metadata["dimension"]]["format_str"]
+        for value in dim_values:
+            formatted_value = f"{value:{dim_fmt_str}}"
+            full_id = f"{var_metadata['id']}_{formatted_value}"
+            variables[full_id] = NNJAVariable(var_metadata, full_id)
         return variables
 
     def info(self) -> str:
@@ -329,7 +373,83 @@ class NNJADataset:
         new_dataset.manifest = subset_df
         return new_dataset
 
+    def _update_variable_with_dimension(self, var_id: str, dim_values: list) -> None:
+        """Update variable associated with a dimension given a subset of dimension values.
+
+        Args:
+            var_id: Variable base ID to update (e.g. 'brightness_temp' for 'brightness_temp_00007').
+            dim_values: List of dimension values to keep.
+        """
+        print(var_id)
+        for k, v in self.variables.items():
+            print(k, v.base_id)
+        all_columns = {k: v for k, v in self.variables.items() if v.base_id == var_id}
+        cols_to_drop = [
+            k for k, v in all_columns.items() if v.dim_val not in dim_values
+        ]
+
+        print(all_columns, cols_to_drop)
+        for var_id in cols_to_drop:
+            self.variables.pop(var_id)
+
     def _select_extra_dimension(
-        self, dim_name: str, value: Union[str, List[str]]
+        self, dim_name: str, selection: DimensionIndexKey
     ) -> "NNJADataset":
-        raise NotImplementedError
+        """
+        Subset the dataset by a specific value of an extra dimension.
+
+        Args:
+            dim_name: The name of the dimension to subset.
+            selection: A single value, a list of values, or a slice of values.
+
+        Returns:
+            NNJADataset: A new dataset object with the subsetted data.
+        """
+        dim_metadata = self.dimensions[dim_name]
+        values = dim_metadata["values"]
+        match selection:
+            case int() | float():
+                if selection not in values:
+                    raise ValueError(
+                        f"Value '{selection}' not found in dimension '{dim_name}'"
+                    )
+                subset_values: List[float] | List[int] = [selection]
+            case list():
+                if not all(item in values for item in selection):
+                    missing_vals = [item for item in selection if item not in values]
+                    raise ValueError(
+                        f"Values {missing_vals} not found in dimension '{dim_name}'"
+                    )
+                subset_values = selection
+            case slice():
+                if selection.step is not None:
+                    raise NotImplementedError(
+                        "Step not supported for slicing dimensions"
+                    )
+                start_idx = (
+                    values.index(selection.start)
+                    if selection.start is not None
+                    else None
+                )
+                stop_idx = (
+                    values.index(selection.stop) if selection.stop is not None else None
+                )
+                if start_idx is None and stop_idx is None:
+                    raise ValueError("Slice must have at least one bound")
+                subset_values = values[start_idx : stop_idx + 1]
+            case _:
+                raise TypeError(
+                    "Selection must be a single value, a list of values, or a slice"
+                )
+        new_dataset = copy.deepcopy(self)
+        base_ids_to_update = set()
+        for var_id, var in self.variables.items():
+            if var.dimension == dim_name:
+                base_ids_to_update.add(var.base_id)
+        for base_id in base_ids_to_update:
+            new_dataset._update_variable_with_dimension(base_id, subset_values)
+        print(dim_name, selection, subset_values)
+        # Also update dimension values.
+        new_dataset.dimensions[dim_name]["values"] = subset_values
+
+        return new_dataset

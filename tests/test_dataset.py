@@ -354,3 +354,62 @@ def test_time_selection_with_invalid_time(sample_dataset, time_sel):
     with pytest.raises(KeyError):
         with warnings.catch_warnings(record=True):
             _ = dataset.sel(time=time_sel)
+
+
+@pytest.mark.parametrize(
+    "dim_name, selection, expected_values",
+    [
+        ("channel", 1, [1]),
+        ("channel", [1, 3, 5], [1, 3, 5]),
+        ("channel", slice(1, 3), [1, 2, 3]),
+    ],
+)
+def test_select_extra_dimension(sample_dataset, dim_name, selection, expected_values):
+    dataset = sample_dataset
+    subset = dataset._select_extra_dimension(dim_name, selection)
+    assert set(subset.dimensions[dim_name]["values"]) == set(expected_values)
+    for var in subset.variables.values():
+        if var.dimension == dim_name:
+            assert var.dim_val in expected_values
+
+
+def test_select_extra_dimension_invalid_value(sample_dataset):
+    dataset = sample_dataset
+    with pytest.raises(ValueError, match="Value '10' not found in dimension 'channel'"):
+        _ = dataset._select_extra_dimension("channel", 10)
+
+
+def test_select_extra_dimension_invalid_list(sample_dataset):
+    dataset = sample_dataset
+    with pytest.raises(
+        ValueError, match=r"Values \[10, 20\] not found in dimension 'channel'"
+    ):
+        _ = dataset._select_extra_dimension("channel", [10, 20])
+
+
+def test_select_extra_dimension_invalid_slice(sample_dataset):
+    dataset = sample_dataset
+    with pytest.raises(ValueError, match="Slice must have at least one bound"):
+        _ = dataset._select_extra_dimension("channel", slice(None, None))
+
+
+@pytest.mark.parametrize(
+    "selection",
+    [
+        slice(0, 3),
+        slice(1, 6),
+        slice(1.5, 5),
+    ],
+)
+def test_select_extra_dimension_bad_slice_values(sample_dataset, selection):
+    dataset = sample_dataset
+    with pytest.raises(ValueError, match="is not in list"):
+        _ = dataset._select_extra_dimension("channel", selection)
+
+
+def test_select_extra_dimension_step_not_supported(sample_dataset):
+    dataset = sample_dataset
+    with pytest.raises(
+        NotImplementedError, match="Step not supported for slicing dimensions"
+    ):
+        _ = dataset._select_extra_dimension("channel", slice(1, 5, 2))
