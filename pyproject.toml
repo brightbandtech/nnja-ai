@@ -22,6 +22,9 @@ packages = ["nnja"]
 package-dir = {"" = "src"}
 include-package-data = true
 
+[tool.setuptools.package-data]
+"nnja" = ["schemas/*.json"]
+
 [tool.uv.sources]
 nnja = { workspace = true }
 

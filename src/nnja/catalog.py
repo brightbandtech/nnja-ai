@@ -3,7 +3,7 @@ from nnja.dataset import NNJADataset
 import logging
 import os
 from typing import Dict, Any
-import pathlib
+from importlib import resources
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,6 @@ class DataCatalog:
         datasets (dict): Dictionary of dataset instances or subtypes.
     """
 
-    data_catalog_json_schema = (
-        pathlib.Path(__file__).parent.parent / "schemas/catalog_schema_v1.json"
-    )
-
     def __init__(self, json_uri: str, skip_manifest: bool = False):
         """
         Initialize the DataCatalog from a JSON metadata file.
@@ -35,9 +31,15 @@ class DataCatalog:
             json_uri: Path to the JSON file (local or cloud storage).
             skip_manifest: Skip loading the manifest for each dataset.
         """
+        import nnja.schemas
+
+        catalog_schema = resources.files(nnja.schemas).joinpath(
+            "catalog_schema_v1.json"
+        )
+
         self.json_uri = json_uri
         self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(
-            json_uri, self.data_catalog_json_schema
+            json_uri, schema_path=catalog_schema
         )
         self.datasets: Dict[str, NNJADataset] = self._parse_datasets(skip_manifest)
 
