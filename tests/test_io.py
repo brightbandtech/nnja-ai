@@ -60,7 +60,7 @@ def test_load_parquet_dask(sample_parquet_files):
 
 def test_load_parquet_invalid_backend(sample_parquet_files):
     with pytest.raises(
-        ValueError, match="Unsupported backend: invalid_backend. valid options are"
+        ValueError, match="Unsupported backend: invalid_backend. Valid options are"
     ):
         load_parquet(sample_parquet_files, columns=["a"], backend="invalid_backend")
 

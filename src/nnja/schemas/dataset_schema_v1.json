@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "parquet_root_path": {
+            "type": "string"
+        },
+        "dimensions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                        "units": {
+                            "type": ["string", "null"]
+                        },
+                        "values": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "format_str": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["units", "values", "format_str"]
+                }
+            }
+        },
+        "variables": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "extra_metadata": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "required": ["id", "description", "category"]
+            }
+        }
+    },
+    "required": ["name", "description", "tags", "parquet_root_path", "dimensions", "variables"]
+}

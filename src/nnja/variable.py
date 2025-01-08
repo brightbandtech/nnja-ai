@@ -1,3 +1,6 @@
+from typing import Optional, Union
+
+
 class NNJAVariable:
     """A class to represent a variable in a NNJADataset.
 
@@ -23,21 +26,31 @@ class NNJAVariable:
 
     Attributes:
         id (str): The fully expanded variable ID, corresponding to the parquet column name.
+        base_id (str): The original variable ID; same as id unless the variable has a dimension
         description (str): Description of the variable.
         category (str): Category of the variable.
         dimension (optional): Dimension of the variable, if available.
         extra_metadata (dict): Additional metadata for the variable.
     """
 
-    def __init__(self, variable_metadata: dict, full_id: str):
+    def __init__(
+        self,
+        variable_metadata: dict,
+        full_id: str,
+        dim_val: Optional[Union[float, int]] = None,
+    ):
         """
         Initialize an NNJAVariable object.
 
         Args:
             variable_metadata: Metadata for the variable.
-            full_id: The fully expanded variable ID (e.g., 'brightness_temp_00007').
+            full_id: The fully expanded variable ID (e.g., 'brightness_temp_00007', or "lat").
+            dim_val: The value of the dimension for this variable, if applicable.
+
         """
         self.id = full_id
+        self.base_id = variable_metadata["id"]
+        self.dim_val = dim_val
         self.description = variable_metadata["description"]
         self.category = variable_metadata["category"]
         self.dimension = variable_metadata.get("dimension")

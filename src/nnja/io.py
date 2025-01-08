@@ -1,8 +1,9 @@
 import fsspec
 import json
-from typing import Literal, List, Union, TYPE_CHECKING
+from typing import Literal, List, Union, Optional, TYPE_CHECKING
 import pandas as pd
 import logging
+import jsonschema
 
 from nnja.exceptions import InvalidPartitionKeyError
 
@@ -18,10 +19,28 @@ logger = logging.getLogger(__name__)
 Backend = Literal["pandas", "polars", "dask"]
 
 
-def read_json(json_uri: str) -> dict:
-    """Read a JSON file from a URI. Supports local and cloud storage."""
+def read_json(json_uri: str, schema_path: Optional[str] = None) -> dict:
+    """Read and validate a JSON file from a URI.
+
+    Supports local and cloud storage URIs. If a JSON schema path is provided,
+    the JSON file will be validated against the schema.
+
+    Args:
+        json_uri: URI pointing to the JSON file.
+        schema_path: Path to the JSON schema file for validation.
+
+    Returns:
+        dict: The loaded JSON data.
+    """
+
     with fsspec.open(json_uri, mode="r") as f:
-        return json.load(f)
+        data = json.load(f)
+    if schema_path:
+        with fsspec.open(schema_path, mode="r") as f:
+            schema = json.load(f)
+        jsonschema.validate(data, schema)
+        logger.debug("JSON file %s validated against schema %s", json_uri, schema_path)
+    return data
 
 
 def load_parquet(
@@ -31,22 +50,22 @@ def load_parquet(
     **backend_kwargs,
 ) -> Union["pd.DataFrame", "pl.LazyFrame", "dd.DataFrame"]:
     """Load parquet files using the specified backend; lazy if supported by the backend.
+
     With the current implementation, polars and dask will load lazily and preserve any
     hive partitions + columns, while pandas will load eagerly and concatenate the dataframes.
 
-    Parameters:
-    parquet_uris (List[str]): List of URIs pointing to the parquet files.
-    columns (List[str]): List of columns to load from the parquet files.
-    backend (str, optional): Backend to use for loading the parquet files.
-                             Valid options are "pandas", "polars", and "dask".
-                             Default is "pandas".
-    **backend_kwargs: Additional keyword arguments to pass to the backend's
-                      loading function.
+    Args:
+        parquet_uris: List of URIs pointing to the parquet files.
+        columns: List of columns to load from the parquet files.
+        backend: Backend to use for loading the parquet files. Valid options are "pandas", "polars", and "dask".
+                 Default is "pandas".
+        **backend_kwargs: Additional keyword arguments to pass to the backend's loading function.
+
     Returns:
-    Union[pd.DataFrame, pl.LazyFrame, dd.DataFrame]: A DataFrame containing the loaded data.
+        Union[pd.DataFrame, pl.LazyFrame, dd.DataFrame]: A DataFrame containing the loaded data.
 
     Raises:
-    ValueError: If an unsupported backend is specified.
+        ValueError: If an unsupported backend is specified.
     """
     match backend:
         case "pandas":
@@ -55,7 +74,6 @@ def load_parquet(
             return pd.concat(
                 [pd.read_parquet(uri, columns=columns) for uri in parquet_uris]
             )
-            # TODO I think this might be better if we used filters to do the time subsetting
         case "polars":
             import polars as pl
 
@@ -64,12 +82,11 @@ def load_parquet(
             logger.info("Loading parquet files using Dask.")
             import dask.dataframe as dd
 
-            # TODO cleanup backend kwargs
             df = dd.read_parquet(parquet_uris, **backend_kwargs)
             return df[columns]
         case _:
             raise ValueError(
-                f"Unsupported backend: {backend}. valid options are {Backend.__args__}"
+                f"Unsupported backend: {backend}. Valid options are {Backend.__args__}"
             )
 
 
