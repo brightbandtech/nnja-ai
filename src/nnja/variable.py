@@ -56,6 +56,10 @@ class NNJAVariable:
         self.dimension = variable_metadata.get("dimension")
         self.extra_metadata = variable_metadata.get("extra_metadata", {})
 
+    def __repr__(self) -> str:
+        """Provide a string representation of the variable."""
+        return f'NNJAVariable("{self.id}" ({self.category}), {self.description})'
+
     def info(self) -> str:
         """Provide a summary of the variable."""
         info_str = (
