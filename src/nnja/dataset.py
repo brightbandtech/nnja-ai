@@ -51,12 +51,8 @@ class NNJADataset:
     def __repr__(self):
         """Return a concise string representation of the dataset."""
         return (
-            f"<NNJADataset(name='{self.name}', "
-            f"description='{self.description[:50]}...', "
-            f"tags={self.tags}, "
-            f"parquet_root_path='{self.parquet_root_path}', "
-            f"files={len(self.manifest)}, "
-            f"variables={len(self.variables)})>"
+            f"NNJADataset(name='{self.name}', "
+            f"description='{self.description[:100]})'"
         )
 
     def __init__(self, json_uri: str, skip_manifest: bool = False):
@@ -187,7 +183,11 @@ class NNJADataset:
         for var_metadata in variables_metadata:
             if var_metadata.get("dimension"):
                 dim_name = var_metadata["dimension"]
-                dim = self.dimensions.get(dim_name)
+                if dim_name not in self.dimensions:
+                    raise ValueError(
+                        f"Dimension '{dim_name}' for variable '{var_metadata['id']}' not found in dataset."
+                    )
+                dim = self.dimensions[dim_name]
 
                 if dim:
                     variables.update(
@@ -233,9 +233,17 @@ class NNJADataset:
             f"Variables: {len(self.variables)}"
         )
 
-    def list_variables(self) -> list:
+    def list_variables(self) -> Dict[str, List[NNJAVariable]]:
         """List all variables with their descriptions."""
-        return [var.info() for var in self.variables.values()]
+        vars_by_category: Dict[str, List[NNJAVariable]] = {
+            "primary descriptors": [],
+            "primary data": [],
+            "secondary data": [],
+            "secondary descriptors": [],
+        }
+        for var in self.variables.values():
+            vars_by_category[var.category].append(var)
+        return vars_by_category
 
     def load_dataset(self, backend: io.Backend = "pandas", **backend_kwargs):
         """Load the dataset into a DataFrame using the specified library.
@@ -380,15 +388,10 @@ class NNJADataset:
             var_id: Variable base ID to update (e.g. 'brightness_temp' for 'brightness_temp_00007').
             dim_values: List of dimension values to keep.
         """
-        print(var_id)
-        for k, v in self.variables.items():
-            print(k, v.base_id)
         all_columns = {k: v for k, v in self.variables.items() if v.base_id == var_id}
         cols_to_drop = [
             k for k, v in all_columns.items() if v.dim_val not in dim_values
         ]
-
-        print(all_columns, cols_to_drop)
         for var_id in cols_to_drop:
             self.variables.pop(var_id)
 

@@ -1383,6 +1383,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fsspec" },
     { name = "gcsfs" },
+    { name = "google-auth" },
     { name = "jsonschema" },
     { name = "pandas" },
     { name = "parquet" },
@@ -1424,6 +1425,7 @@ requires-dist = [
     { name = "dask", extras = ["dataframe"], marker = "extra == 'dask'", specifier = ">=2024.12.0" },
     { name = "fsspec", specifier = ">=2024.10.0" },
     { name = "gcsfs", specifier = ">=2024.10.0" },
+    { name = "google-auth", specifier = ">=2.36.0" },
     { name = "ipykernel", marker = "extra == 'interactive'" },
     { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "jupyterlab", marker = "extra == 'interactive'" },

@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 # Configuration parameters
 STRICT_LOAD = os.getenv("STRICT_LOAD", default=True)
+NNJA_BUCKET = "bb-nnja-ai-dev"
+DEFAULT_CATALOG = f"gs://{NNJA_BUCKET}/data/v1-preview/catalog.json"
 
 
 class DataCatalog:
@@ -23,7 +25,7 @@ class DataCatalog:
         datasets (dict): Dictionary of dataset instances or subtypes.
     """
 
-    def __init__(self, json_uri: str, skip_manifest: bool = False):
+    def __init__(self, json_uri: str = DEFAULT_CATALOG, skip_manifest: bool = False):
         """
         Initialize the DataCatalog from a JSON metadata file.
 

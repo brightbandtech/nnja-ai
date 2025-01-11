@@ -4,6 +4,8 @@ from typing import Literal, List, Union, Optional, TYPE_CHECKING
 import pandas as pd
 import logging
 import jsonschema
+import google.auth
+from google.auth.transport.requests import Request
 
 from nnja.exceptions import InvalidPartitionKeyError
 
@@ -17,6 +19,30 @@ VALID_PARTITION_KEYS = ["OBS_DATE", "OBS_HOUR", "MSG_TYPE"]
 logger = logging.getLogger(__name__)
 
 Backend = Literal["pandas", "polars", "dask"]
+
+
+def _check_authentication() -> bool:
+    """Convenience function to check if the user is authenticated with GCS.
+
+    This does not handle authentication, only checks if the user is authenticated.
+    First checks if the user has default credentials, and if not, attempts to refresh them.
+    """
+    try:
+        credentials, project = google.auth.default()
+
+        if not credentials.valid:
+            credentials.refresh(Request())
+
+        logger.info("Authenticated with GCS.")
+        return True
+    except (
+        google.auth.exceptions.DefaultCredentialsError,
+        google.auth.exceptions.RefreshError,
+    ):
+        logger.error(
+            "Authentication failed. Please run `gcloud auth application-default login` to reauthenticate."
+        )
+        return False
 
 
 def read_json(json_uri: str, schema_path: Optional[str] = None) -> dict:
@@ -79,7 +105,6 @@ def load_parquet(
 
             return pl.scan_parquet(parquet_uris, **backend_kwargs).select(columns)
         case "dask":
-            logger.info("Loading parquet files using Dask.")
             import dask.dataframe as dd
 
             df = dd.read_parquet(parquet_uris, **backend_kwargs)
