@@ -65,6 +65,10 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# Local
+.DS_Store
+*/.DS_Store
+
 # Scrapy stuff:
 .scrapy
 

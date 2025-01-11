@@ -244,7 +244,6 @@ class NNJADataset:
         for var in self.variables.values():
             vars_by_category[var.category].append(var)
         return vars_by_category
-        # return [var.info() for var in self.variables.values()]
 
     def load_dataset(self, backend: io.Backend = "pandas", **backend_kwargs):
         """Load the dataset into a DataFrame using the specified library.
@@ -389,15 +388,10 @@ class NNJADataset:
             var_id: Variable base ID to update (e.g. 'brightness_temp' for 'brightness_temp_00007').
             dim_values: List of dimension values to keep.
         """
-        print(var_id)
-        for k, v in self.variables.items():
-            print(k, v.base_id)
         all_columns = {k: v for k, v in self.variables.items() if v.base_id == var_id}
         cols_to_drop = [
             k for k, v in all_columns.items() if v.dim_val not in dim_values
         ]
-
-        print(all_columns, cols_to_drop)
         for var_id in cols_to_drop:
             self.variables.pop(var_id)
 

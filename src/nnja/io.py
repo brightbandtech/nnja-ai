@@ -21,20 +21,25 @@ logger = logging.getLogger(__name__)
 Backend = Literal["pandas", "polars", "dask"]
 
 
-def _check_authentication():
+def _check_authentication() -> bool:
+    """Convenience function to check if the user is authenticated with GCS.
+
+    This does not handle authentication, only checks if the user is authenticated.
+    First checks if the user has default credentials, and if not, attempts to refresh them.
+    """
     try:
         credentials, project = google.auth.default()
 
         if not credentials.valid:
             credentials.refresh(Request())
 
-        print("Authenticated with GCS.")
+        logger.info("Authenticated with GCS.")
         return True
     except (
         google.auth.exceptions.DefaultCredentialsError,
         google.auth.exceptions.RefreshError,
     ):
-        print(
+        logger.error(
             "Authentication failed. Please run `gcloud auth application-default login` to reauthenticate."
         )
         return False
