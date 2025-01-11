@@ -11,7 +11,6 @@ In [partnership with NOAA](https://techpartnerships.noaa.gov/tpo_partnership/mak
 NNJA datasets are organized by sensor/source (e.g. all-sky radiances from the GOES ABI).
 The list of all NNJA datasets can be found on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#data-sources), while the subset that is currently found in the NNJA-AI archive can be found [here](docs/datasets.md) or by exploring the data catalog (this will be be expanding rapidly).
 
-The data is tabular in structure (with columns for date, lat, lon, and many data/metadata columns) and stored as hive-partitioned parquets, so the intended use of this library is to find data and quickly load to a familiar tabular data analysis tool (pandas, dask, polars) for any further work.
 
 
 ## Getting Started
@@ -30,6 +29,13 @@ catalog = DataCatalog()
 print("datasets in catalog:", catalog.list_datasets())
 ```
 
+```
+['amsua-1bamua-NC021023',
+ 'atms-atms-NC021203',
+ 'mhs-1bmhs-NC021027',
+ 'cris-crisf4-NC021206']
+```
+
 ## How to Cite
 If you use this library or the Brightband reprocessed NNJA data, please cite it using the following DOI:
 
@@ -38,4 +44,4 @@ If you use this library or the Brightband reprocessed NNJA data, please cite it 
 Additionally, please follow the citation guidance on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#cite
 ).
 
-The NNJA-AI data is distributed with the same license as the original NNJA data, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)
+The NNJA-AI data is distributed with the same license as the original NNJA data, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en).
