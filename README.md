@@ -30,6 +30,8 @@ print("datasets in catalog:", catalog.list_datasets())
 ```
 
 ```
+datasets in catalog:
+
 ['amsua-1bamua-NC021023',
  'atms-atms-NC021203',
  'mhs-1bmhs-NC021027',
