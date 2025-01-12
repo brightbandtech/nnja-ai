@@ -63,3 +63,39 @@ Its main purpose is to measure atmospheric humidity and provide data for weather
 - [OSCAR Instrument detail page](https://space.oscar.wmo.int/instruments/view/mhs)
 - [Eumetsat data processing documentation](https://user.eumetsat.int/s3/eup-strapi-media/pdf_ten_97229_eps_mhs_pfs_2069b45efc.pdf)
 - [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/mhs/1bmhs/)
+
+
+### IASI
+
+- Sensor: `iasi`
+- Source: `mtiasi`
+- Message: `NC021241`
+- Dates processed: `2021-January 2024`
+
+This dataset contains the Infrared Atmospheric Sounding Interferometer (IASI) radiances from the METOP-XX polar-orbiting satellite series.
+The primary data packet (`SCRA_XXXXX`, 616 columns total) includes radiance measurements across a wide spectral range, providing detailed information on atmospheric temperature, humidity, and trace gases (including ozone)
+
+Note on data processing: IASI raw data in BUFR format is stored with scaling factors (list column `IASIL1CB`).
+These have already been applied to the radiances in the NNJA-AI version of the dataset; no further scaling is needed.
+
+#### Additional Resources
+
+- [OSCAR Instrument detail page](https://space.oscar.wmo.int/instruments/view/iasi)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/iasi/mtiasi/)
+
+
+### CrIS
+
+- Sensor: `cris`
+- Source: `crisf4`
+- Message: `NC021206`
+- Dates processed: `2021-August 2024`
+
+This dataset contains the Cross-track Infrared Sounder (CrIS) radiances from the NOAA-20 and Suomi NPP satellites.
+The primary data packet (columns SRAD01_XXXXX, 431 in total) includes radiance measurements across a large spectral range, providing information about temperature and humidity profiles, as well as ozone.
+
+#### Additional Resources
+
+- [OSCAR Instrument detail page](https://space.oscar.wmo.int/instruments/view/cris)
+- [EUMETSAT product page](https://navigator.eumetsat.int/product/EO:EUM:DAT:MULT:EARS-CRIS/print)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/cris/crisf4/)
