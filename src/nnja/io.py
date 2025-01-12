@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 VALID_TIME_INDEX = ["OBS_DATE", "OBS_HOUR"]
 VALID_PARTITION_KEYS = ["OBS_DATE", "OBS_HOUR", "MSG_TYPE"]
+USE_ANON_CREDENTIALS = True
+ANON_AUTH_ARGS = {"token": "anon"}
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +27,12 @@ def _check_authentication() -> bool:
     """Convenience function to check if the user is authenticated with GCS.
 
     This does not handle authentication, only checks if the user is authenticated.
+    If the USE_ANON_CREDENTIALS flag is set, this function will always return True.
     First checks if the user has default credentials, and if not, attempts to refresh them.
     """
+    if USE_ANON_CREDENTIALS:
+        logger.info("Using anonymous credentials for GCS.")
+        return True
     try:
         credentials, project = google.auth.default()
 
@@ -58,8 +64,12 @@ def read_json(json_uri: str, schema_path: Optional[str] = None) -> dict:
     Returns:
         dict: The loaded JSON data.
     """
-
-    with fsspec.open(json_uri, mode="r") as f:
+    auth_args = (
+        ANON_AUTH_ARGS
+        if USE_ANON_CREDENTIALS and str(json_uri).startswith("gs://")
+        else {}
+    )
+    with fsspec.open(json_uri, mode="r", **auth_args) as f:
         data = json.load(f)
     if schema_path:
         with fsspec.open(schema_path, mode="r") as f:
@@ -93,21 +103,33 @@ def load_parquet(
     Raises:
         ValueError: If an unsupported backend is specified.
     """
+    auth_args = (
+        ANON_AUTH_ARGS
+        if USE_ANON_CREDENTIALS and parquet_uris[0].startswith("gs://")
+        else {}
+    )
     match backend:
         case "pandas":
             import pandas as pd
 
             return pd.concat(
-                [pd.read_parquet(uri, columns=columns) for uri in parquet_uris]
+                [
+                    pd.read_parquet(uri, columns=columns, storage_options=auth_args)
+                    for uri in parquet_uris
+                ]
             )
         case "polars":
             import polars as pl
 
-            return pl.scan_parquet(parquet_uris, **backend_kwargs).select(columns)
+            return pl.scan_parquet(
+                parquet_uris, storage_options=auth_args, **backend_kwargs
+            ).select(columns)
         case "dask":
             import dask.dataframe as dd
 
-            df = dd.read_parquet(parquet_uris, **backend_kwargs)
+            df = dd.read_parquet(
+                parquet_uris, storage_options=auth_args, **backend_kwargs
+            )
             return df[columns]
         case _:
             raise ValueError(
@@ -149,9 +171,14 @@ def load_manifest(parquet_dir: str) -> "pd.DataFrame":
     Returns:
         pd.DataFrame: DataFrame with partition keys, values, and file paths.
     """
+    auth_args = (
+        ANON_AUTH_ARGS
+        if USE_ANON_CREDENTIALS and parquet_dir.startswith("gs://")
+        else {}
+    )
     logger.debug("Loading manifest from parquet directory: %s", parquet_dir)
     filesystem = "gcs" if parquet_dir.startswith("gs://") else "file"
-    fs = fsspec.filesystem(filesystem)
+    fs = fsspec.filesystem(filesystem, **auth_args)
     files = fs.find(parquet_dir, detail=True)
     logger.debug("Found %d files in the directory.", len(files))
     metadata = []
