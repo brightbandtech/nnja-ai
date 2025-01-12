@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration parameters
 STRICT_LOAD = os.getenv("STRICT_LOAD", default=True)
-NNJA_BUCKET = "bb-nnja-ai-dev"
+NNJA_BUCKET = "nnja-ai"
 DEFAULT_CATALOG = f"gs://{NNJA_BUCKET}/data/v1-preview/catalog.json"
 
 
