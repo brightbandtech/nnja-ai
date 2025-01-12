@@ -41,7 +41,8 @@ datasets in catalog:
 ## How to Cite
 If you use this library or the Brightband reprocessed NNJA data, please cite it using the following DOI:
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1234567.svg)](insertlinkhere)
+[![DOI](https://zenodo.org/badge/899259654.svg)](https://doi.org/10.5281/zenodo.14633508)
+
 
 Additionally, please follow the citation guidance on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#cite
 ).
