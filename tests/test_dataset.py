@@ -97,7 +97,7 @@ def sample_dataset(tmp_path):
     with open(tmp_path / "test_dataset.json", "w") as f:
         json.dump(metadata, f)
 
-    dataset = NNJADataset(tmp_path / "test_dataset.json")
+    dataset = NNJADataset(str(tmp_path / "test_dataset.json"))
     return dataset
 
 
