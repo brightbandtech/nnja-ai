@@ -99,3 +99,69 @@ The primary data packet (columns SRAD01_XXXXX, 431 in total) includes radiance m
 - [OSCAR Instrument detail page](https://space.oscar.wmo.int/instruments/view/cris)
 - [EUMETSAT product page](https://navigator.eumetsat.int/product/EO:EUM:DAT:MULT:EARS-CRIS/print)
 - [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/cris/crisf4/)
+
+
+### ADPSFC
+
+These datasets contain NCEP ADP Global Surface Observational Weather data. There are currently 4 ADPSFC datasets, all containing surface station observations from different data sources. These are part of the "conv" collection of sources, representing conventional observation platforms (surface stations, buoys, weather balloons, etc.). The surface station datasets can be differentiated by their message ID, which correspond to the data channel through with they are received.
+
+While generally these dataset all contain common data (e.g. temperature, dew point, wind speeds) and data descriptors (latitude, longitude, station elevation), the naming of these variables will differ slightly between messages (e.g. dew point may be `TEMHUMDA.TMDP` vs `MPSQ1.TMDP`). These datasets have many columns to parse though, so a useful snippet to pare down the data according to our subjective classification of variables is as follows:
+
+```
+dataset = catalog["conv-adpsfc-NC000001"]  # using NC000001 as example
+primary_vars = [k for k,v in dataset.variables.items() if v.category in ['primary data','primary descriptors']]
+dataset = dataset.sel(variables=primary_vars)
+dataset.variables
+```
+
+Some fields have complex meanings; be sure to read [Understanding the Data](/docs/understanding-the-data.md).
+
+#### ADPSFC - Synoptic Fixed Land (from WMO SYNOP bulletins)
+
+- Sensor: `conv`
+- Source: `adpsfc`
+- Message: `NC000001`
+- Dates processed: `2021-August 2024`
+
+ Surface data from fixed land stations, received through WMO SYNOP bulletins. This dataset and [NC000101](/docs/datasets.md#adpsfc---synoptic-fixed-land-originally-in-bufr) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
+
+#### Additional Resources
+
+- [SYNOP Codes](https://en.wikipedia.org/wiki/SYNOP)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000001/)
+
+#### ADPSFC - Synoptic Mobile Land (from WMO SYNOP MOBIL bulletins)
+
+- Sensor: `conv`
+- Source: `adpsfc`
+- Message: `NC000002`
+- Dates processed: `2021-August 2024`
+
+Surface data from mobile land stations, received through WMO SYNOP bulletins. This dataset and NC000102 (not currently processed) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. Note that the stations in this dataset mostly originate from South Asia.
+
+#### ADPSFC - Aviation (METAR/SPECI)
+
+- Sensor: `conv`
+- Source: `adpsfc`
+- Message: `NC000007`
+- Dates processed: `2021-August 2024`
+
+Surface data from aviation weather reports (METAR/SPECI). This dataset contains observations from airports and other aviation facilities, providing information on temperature, dew point, wind speed and direction, visibility, and other meteorological variables critical for aviation operations.
+
+#### Additional Resources
+
+- [Understanding METAR/SPECI](https://aviationweather.gov/help/data/#metar)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000007/)
+
+#### ADPSFC - Synoptic Fixed Land (originally in BUFR)
+
+- Sensor: `conv`
+- Source: `adpsfc`
+- Message: `NC000101`
+- Dates processed: `2021-August 2024`
+
+Surface data from fixed land stations, originally received in BUFR format. This dataset and [NC000001](/docs/datasets.md#adpsfc---synoptic-fixed-land-from-wmo-synop-bulletins) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
+
+#### Additional Resources
+
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000101/)
