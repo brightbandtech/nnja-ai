@@ -114,7 +114,12 @@ def load_parquet(
 
             return pd.concat(
                 [
-                    pd.read_parquet(uri, columns=columns, storage_options=auth_args)
+                    pd.read_parquet(
+                        uri,
+                        columns=columns,
+                        storage_options=auth_args,
+                        **backend_kwargs,
+                    )
                     for uri in parquet_uris
                 ]
             )
