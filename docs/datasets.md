@@ -165,3 +165,73 @@ Surface data from fixed land stations, originally received in BUFR format. This 
 #### Additional Resources
 
 - [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000101/)
+
+
+### Himawari Advanced Himawari Imager (AHI) Clear-Sky Radiance
+
+- Sensor: `geo`
+- Source: `ahicsr`
+- Message: `NC021044`
+- Dates processed: `March 2021-August 2024`
+
+This dataset contains clear-sky radiance measurements from the Advanced Himawari Imager (AHI) instrument aboard the JMA Himawari geostationary satellites. The data is processed to include only clear-sky conditions. The primary data packet consists of brightness temperature measurements (TMBRST) for 10 channels, with channels 11 and 12 currently not populated, nor are the channel band widths (SCBW) and cloud type (CLTP) populated for all channels.
+
+#### Additional Resources
+
+- [OSCAR Instrument Detail Page](https://space.oscar.wmo.int/instruments/view/ahi)
+- [JMA Himawari Overview](https://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/geo/ahicsr/)
+
+### GOES All-Sky Radiances
+
+- Sensor: `geo`
+- Source: `gsrasr`
+- Message: `NC021045`
+- Dates processed: `March 2021-August 2024`
+
+This dataset contains all-sky radiance measurements from the Advanced Baseline Imager (ABI) aboard GOES satellites. The data includes radiance measurements under all atmospheric conditions, providing comprehensive coverage of the Americas and surrounding oceanic regions. The primary data packet includes brightness temperature measurements for 10 channels under various conditions:
+- All-sky conditions (TMBRST_allsky)
+- Clear-sky conditions (TMBRST_clearsky)
+- All-cloud conditions (TMBRST_allcloud)
+
+While the dataset does have cloud-height specific measurements (TMBRST_lowcloud, TMBRST_midcloud, TMBRST_highcloud), they are currently not populated.
+#### Additional Resources
+
+- [OSCAR Instrument Detail Page](https://space.oscar.wmo.int/instruments/view/abi)
+- [GOES ABI Overview](https://www.goes-r.gov/spacesegment/abi.html)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/geo/gsrasr/)
+
+### GOES Clear-Sky Radiances
+
+- Sensor: `geo`
+- Source: `gsrcsr`
+- Message: `NC021046`
+- Dates processed: `March 2021-August 2024`
+
+This dataset contains clear-sky radiance measurements from the Advanced Baseline Imager (ABI) aboard GOES satellites. The data is specifically filtered to include only measurements taken under clear-sky conditions, making it particularly valuable for applications requiring unobstructed atmospheric measurements and radiative transfer modeling. The primary data packet consists of brightness temperature measurements (TMBRST) for 10 channels.
+
+#### Additional Resources
+
+- [OSCAR Instrument Detail Page](https://space.oscar.wmo.int/instruments/view/abi)
+- [GOES ABI Overview](https://www.goes-r.gov/spacesegment/abi.html)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/geo/gsrcsr/)
+
+### SEVIRI All-Sky Radiances
+
+- Sensor: `seviri`
+- Source: `sevasr`
+- Message: `NC021042`
+- Dates processed: `March 2022-August 2024`
+
+This dataset contains all-sky radiance measurements from the Spinning Enhanced Visible and InfraRed Imager (SEVIRI) instrument aboard Meteosat Second Generation (MSG) satellites. The data includes radiance measurements under all atmospheric conditions, providing comprehensive coverage over Europe, Africa, and surrounding regions. The primary data packet includes brightness temperature measurements for 11 channels (visible/near-IR channels 1-3 currently not populated) under various conditions:
+- All-sky conditions (TMBRST_allsky)
+- Clear-sky conditions (TMBRST_clearsky)
+- All-cloud conditions (TMBRST_allcloud)
+- Cloud-type specific conditions (high/mid/low cloud, TMBRST_highcloud, etc.)
+
+Each measurement type includes corresponding standard deviation fields (SDTB). Some cloud-type specific measurements have partial coverage.
+
+#### Additional Resources
+
+- [OSCAR Instrument Detail Page](https://space.oscar.wmo.int/instruments/view/seviri)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/seviri/sevasr/)
