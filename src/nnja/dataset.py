@@ -219,7 +219,7 @@ class NNJADataset:
         variables = {}
         dim_fmt_str = self.dimensions[var_metadata["dimension"]]["format_str"]
         for value in dim_values:
-            formatted_value = f"{value:{dim_fmt_str}}"
+            formatted_value = dim_fmt_str.format(value)
             full_id = f"{var_metadata['id']}_{formatted_value}"
             variables[full_id] = NNJAVariable(var_metadata, full_id)
         return variables
