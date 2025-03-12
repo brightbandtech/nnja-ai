@@ -6,6 +6,7 @@ import logging
 import jsonschema
 import google.auth
 from google.auth.transport.requests import Request
+import os
 
 from nnja.exceptions import InvalidPartitionKeyError
 
@@ -15,40 +16,53 @@ if TYPE_CHECKING:
 
 VALID_TIME_INDEX = ["OBS_DATE", "OBS_HOUR"]
 VALID_PARTITION_KEYS = ["OBS_DATE", "OBS_HOUR", "MSG_TYPE"]
-USE_ANON_CREDENTIALS = True
-ANON_AUTH_ARGS = {"token": "anon"}
 
 logger = logging.getLogger(__name__)
 
 Backend = Literal["pandas", "polars", "dask"]
 
 
-def _check_authentication() -> bool:
-    """Convenience function to check if the user is authenticated with GCS.
+def _get_auth_args(uri: str) -> dict:
+    """Determine authentication arguments based on URI and environment configuration.
 
-    This does not handle authentication, only checks if the user is authenticated.
-    If the USE_ANON_CREDENTIALS flag is set, this function will always return True.
-    First checks if the user has default credentials, and if not, attempts to refresh them.
+    For GCS URIs, we default to anonymous access unless the NNJA_USE_AUTH environment
+    variable is set to "true".
+    In that case, we use the default credentials from google.auth, refreshing them as
+    needed.
+
+
+    Args:
+        uri: The URI to access (e.g., gs://bucket/path)
+
+    Returns:
+        dict: Authentication arguments for fsspec
     """
-    if USE_ANON_CREDENTIALS:
-        logger.info("Using anonymous credentials for GCS.")
-        return True
+    if not str(uri).startswith("gs://"):
+        return {}
+
+    # Check environment variable at function call time to allow patching in tests
+    use_anon_credentials = os.getenv("NNJA_USE_AUTH", "false").lower() != "true"
+    anon_auth_args = {"token": "anon"}
+
+    if use_anon_credentials:
+        logger.debug("Using anonymous credentials for GCS access")
+        return anon_auth_args
+
     try:
         credentials, project = google.auth.default()
-
         if not credentials.valid:
             credentials.refresh(Request())
-
-        logger.info("Authenticated with GCS.")
-        return True
+        logger.debug("Using authenticated credentials for GCS access")
+        return {}
     except (
         google.auth.exceptions.DefaultCredentialsError,
         google.auth.exceptions.RefreshError,
     ):
-        logger.error(
-            "Authentication failed. Please run `gcloud auth application-default login` to reauthenticate."
+        logger.warning(
+            "Authentication failed, falling back to anonymous access. "
+            "Set NNJA_USE_AUTH=true to require authentication."
         )
-        return False
+        return anon_auth_args
 
 
 def read_json(json_uri: str, schema_path: Optional[str] = None) -> dict:
@@ -64,11 +78,7 @@ def read_json(json_uri: str, schema_path: Optional[str] = None) -> dict:
     Returns:
         dict: The loaded JSON data.
     """
-    auth_args = (
-        ANON_AUTH_ARGS
-        if USE_ANON_CREDENTIALS and str(json_uri).startswith("gs://")
-        else {}
-    )
+    auth_args = _get_auth_args(json_uri)
     with fsspec.open(json_uri, mode="r", **auth_args) as f:
         data = json.load(f)
     if schema_path:
@@ -103,11 +113,7 @@ def load_parquet(
     Raises:
         ValueError: If an unsupported backend is specified.
     """
-    auth_args = (
-        ANON_AUTH_ARGS
-        if USE_ANON_CREDENTIALS and parquet_uris[0].startswith("gs://")
-        else {}
-    )
+    auth_args = _get_auth_args(parquet_uris[0])
     match backend:
         case "pandas":
             import pandas as pd
@@ -176,11 +182,7 @@ def load_manifest(parquet_dir: str) -> "pd.DataFrame":
     Returns:
         pd.DataFrame: DataFrame with partition keys, values, and file paths.
     """
-    auth_args = (
-        ANON_AUTH_ARGS
-        if USE_ANON_CREDENTIALS and parquet_dir.startswith("gs://")
-        else {}
-    )
+    auth_args = _get_auth_args(parquet_dir)
     logger.debug("Loading manifest from parquet directory: %s", parquet_dir)
     filesystem = "gcs" if parquet_dir.startswith("gs://") else "file"
     fs = fsspec.filesystem(filesystem, **auth_args)
