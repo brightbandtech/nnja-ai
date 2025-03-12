@@ -4,12 +4,14 @@ from nnja.io import (
     read_json,
     _parse_filepath_to_partitions,
     load_manifest,
+    _get_auth_args,
 )
 from nnja.exceptions import InvalidPartitionKeyError
 import pandas as pd
 import polars as pl
 import json
 import fsspec
+import google.auth
 
 import dask.dataframe as dd
 
@@ -180,3 +182,71 @@ def test_load_manifest_invalid_partition_key(tmp_path, monkeypatch):
 
     with pytest.raises(InvalidPartitionKeyError):
         load_manifest(str(parquet_dir))
+
+
+def test_get_auth_args_non_gcs():
+    """Test that non-GCS URIs return empty auth args"""
+    assert _get_auth_args("file:///path/to/file") == {}
+    assert _get_auth_args("http://example.com") == {}
+    assert _get_auth_args("/local/path") == {}
+
+
+def test_get_auth_args_gcs_anon_default(monkeypatch):
+    """Test that GCS URIs use anonymous credentials by default"""
+    # Ensure environment variable is not set
+    monkeypatch.delenv("NNJA_USE_AUTH", raising=False)
+
+    result = _get_auth_args("gs://bucket/path")
+    assert result == {"token": "anon"}
+
+
+def test_get_auth_args_gcs_auth(monkeypatch):
+    """Test that GCS URIs use authenticated credentials when NNJA_USE_AUTH=true"""
+    # Set environment variable to require auth
+    monkeypatch.setenv("NNJA_USE_AUTH", "true")
+
+    # Mock successful authentication
+    class MockCredentials:
+        def __init__(self):
+            self.valid = True
+
+    mock_credentials = MockCredentials()
+    monkeypatch.setattr(google.auth, "default", lambda: (mock_credentials, "project"))
+
+    result = _get_auth_args("gs://bucket/path")
+    assert result == {}
+
+
+def test_get_auth_args_gcs_auth_failure(monkeypatch):
+    """Test that GCS URIs fall back to anonymous credentials when auth fails"""
+    # Set environment variable to require auth
+    monkeypatch.setenv("NNJA_USE_AUTH", "true")
+
+    # Mock authentication failure
+    def mock_default():
+        raise google.auth.exceptions.DefaultCredentialsError()
+
+    monkeypatch.setattr(google.auth, "default", mock_default)
+
+    result = _get_auth_args("gs://bucket/path")
+    assert result == {"token": "anon"}
+
+
+def test_get_auth_args_gcs_auth_refresh_failure(monkeypatch):
+    """Test that GCS URIs fall back to anonymous credentials when token refresh fails"""
+    # Set environment variable to require auth
+    monkeypatch.setenv("NNJA_USE_AUTH", "true")
+
+    # Mock credentials that fail to refresh
+    class MockCredentials:
+        def __init__(self):
+            self.valid = False
+
+        def refresh(self, request):
+            raise google.auth.exceptions.RefreshError()
+
+    mock_credentials = MockCredentials()
+    monkeypatch.setattr(google.auth, "default", lambda: (mock_credentials, "project"))
+
+    result = _get_auth_args("gs://bucket/path")
+    assert result == {"token": "anon"}
