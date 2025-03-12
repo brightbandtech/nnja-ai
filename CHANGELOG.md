@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.1] - 2025-03-12
 ### Added
 - Documentation for the following datasets: ADPSFC, geostationary satellites
 - Created FAQ page and understanding-the-data for more details

@@ -1,6 +1,6 @@
 [project]
 name = "nnja"
-version = "0.1.0"
+version = "0.1.1"
 description = "Find and load data from the Brightband AI-ready mirror of the NOAA NASA Joint Archive (NNJA) of Observations for Earth System Reanalysis"
 readme = "README.md"
 requires-python = ">=3.10"
