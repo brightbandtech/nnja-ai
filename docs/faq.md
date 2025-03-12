@@ -21,6 +21,13 @@ We are working to add more datasets to the archive, and will update the document
 ## What format is the data in and where is it stored?
 The data is stored on GCS in parquets with partitions for each day.
 See the example notebook [here](/example_notebooks/basic_dataset_example.ipynb) for a guide on how to access the data.
+If you prefer to bypass this SDK, you can currently find the v1-preview datasets here:
+`gs://nnja-ai/data/v1-preview/` for direct access to the parquet files.
+
+## What have you done to process the NNJA BUFR files?
+1) convert from BUFR to AVRO, preserving all the structure of the original BUFR messages (nested types, etc.).
+2) 'flatten' the complex columns (array, struct) into simple scalar columns.
+3) combined 6-hourly files into daily Parquet partitions based on the observation timestamp.
 
 ## Why is are some columns still a structured field?
 The original BUFR data is highly structured, with multiple levels of nested data.
@@ -65,7 +72,7 @@ ds.variables['SIDENSEQ.SIDGRSEQ.SAID'].extra_metadata
 ```
 
 
-## Why is this entire column missing data?
+## Why is this or that entire column missing data?
 We included all data fields from the original BUFR data.
 Some data fields were not populated in the original data (e.g. GOES warm channels are not present in the ABI data).
 If the [datasets documentation](/docs/datasets.md) does not mention a missing field that you think should be present,
