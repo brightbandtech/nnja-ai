@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Added
+ - documentation and example notebook for upper-air rawinsonde data
+
 ## [0.1.1] - 2025-03-12
 ### Added
 - Documentation for the following datasets: ADPSFC, geostationary satellites
