@@ -125,10 +125,6 @@ Some fields have complex meanings; be sure to read [Understanding the Data](/doc
 
  Surface data from fixed land stations, received through WMO SYNOP bulletins. This dataset and [NC000101](/docs/datasets.md#adpsfc---synoptic-fixed-land-originally-in-bufr) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
 
-#### Additional Resources
-
-- [SYNOP Codes](https://en.wikipedia.org/wiki/SYNOP)
-- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000001/)
 
 #### ADPSFC - Synoptic Mobile Land (from WMO SYNOP MOBIL bulletins)
 
@@ -148,11 +144,6 @@ Surface data from mobile land stations, received through WMO SYNOP bulletins. Th
 
 Surface data from aviation weather reports (METAR/SPECI). This dataset contains observations from airports and other aviation facilities, providing information on temperature, dew point, wind speed and direction, visibility, and other meteorological variables critical for aviation operations.
 
-#### Additional Resources
-
-- [Understanding METAR/SPECI](https://aviationweather.gov/help/data/#metar)
-- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000007/)
-
 #### ADPSFC - Synoptic Fixed Land (originally in BUFR)
 
 - Sensor: `conv`
@@ -164,7 +155,24 @@ Surface data from fixed land stations, originally received in BUFR format. This 
 
 #### Additional Resources
 
-- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/adpsfc/nc000101/)
+- [SYNOP Codes](https://en.wikipedia.org/wiki/SYNOP)
+- [Understanding METAR/SPECI](https://aviationweather.gov/help/data/#metar)
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/conv/convbufr/adpsfc/)
+
+
+### ADPUPA - Fixed Land Upper-air Rawinsonde data
+
+- Sensor: `conv`
+- Source: `adpupa`
+- Message: `NC002001`
+- Dates processsed: `2021-August 2024`
+
+Upper-air rawinsonde (radiosonde) data. This is a sparse dataset with coverage over land only. The main data packet is temperature, dew point temperature, wind speed, and wind direction, and geopotential, on pressure levels (columns with prefixes, in order, `TMDB_`, `TMDP_`, `WSPD_`, `WDIR_`, `GP10_`). These data are originally packaged into the `UARLV` column, however their structure does not lend itself well to flattening. The UPA profile plotting [example notebook](/example_notebooks/adpupa_profile_example.ipynb) demonstrates some of the nuances of accessing this data.
+
+#### Additional Resources
+- [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/conv/convbufr/adpupa/)
+
+
 
 
 ### Himawari Advanced Himawari Imager (AHI) Clear-Sky Radiance
