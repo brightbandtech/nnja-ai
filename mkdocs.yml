@@ -1,31 +1,48 @@
-site_name: Brightband Common Python Library
+site_name: NNJA-AI Software Development Kit
+site_description: >-
+  Python SDK for the AI-optimized NOAA NASA Joint Archive (NNJA) of Observations for Earth System Reanalysis.
+site_author: Brightband PBC
+# site_url: https:/nnja-io.brightband.com
+repo_url: https://github.com/brightbandtech/nnja-ai
+repo_name: brightbandtech/nnja-ai
+copyright: Brightband PBC
+
+# strict: true  # Disable during dev
+
 theme:
-  name: "material"
-  logo: "assets/images/Brightband-Symbol-Alabaster.svg"
-  favicon: "assets/images/Brightband-Symbol-Alabaster.svg"
+  name: material
+  logo: assets/images/Brightband-Symbol-Alabaster.svg
+  favicon: assets/images/Brightband-Symbol-Alabaster.svg
   palette:
     scheme: "brightband"
+
 extra_css:
   - stylesheets/brightband.css
+
+plugins:
+  - search
+  - mkdocs-autoapi:
+      autoapi_dir: src
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            group_by_category: true
+            # show_category_heading: true
+            docstring_section_style: list
+            show_source: false
+            separate_signature: true
+            signature_crossrefs: true
+            summary: true
+
 nav:
   - Home: index.md
-plugins:
-- search
-- mkdocs-autoapi:
-    autoapi_dir: src
-- mkdocstrings:
-    handlers:
-      python:
-        paths: [src]
-        options:
-          docstring_style: google
-          docstring_options:
-            ignore_init_summary: true
-          merge_init_into_class: true
-          group_by_category: true
-          # show_category_heading: true
-          docstring_section_style: list
-          show_source: false
-          separate_signature: true
-          signature_crossrefs: true
-          summary: true
+  - Data:
+    - Datasets: datasets.md
+    - Understanding the Data: understanding-the-data.md
+  - FAQ: faq.md
