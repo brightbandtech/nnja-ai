@@ -60,7 +60,7 @@ We're working on adding a helper utility to incorporate these into the archive a
 but in the meantime you can use the `extra_metadata` to view the code table or flag table to link to the NOAA code table page.
 
 ```python
-catalog = DataCatalog(json_uri="gs://nnja-ai/data/v1-preview/catalog.json", skip_manifest=True)  # skip_manifest=True avoids scanning GCS for dataset contents, just a bit faster
+catalog = DataCatalog()  # Uses default NOAA NODD mirror on GCP
 ds = catalog['seviri-sevasr-NC021042']
 ds.variables['SIDENSEQ.SIDGRSEQ.SAID'].extra_metadata
 ```

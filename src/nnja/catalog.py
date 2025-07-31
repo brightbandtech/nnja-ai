@@ -44,7 +44,6 @@ class DataCatalog:
         mirror: Optional[str] = DEFAULT_MIRROR,
         base_path: Optional[str] = None,
         catalog_json: Optional[str] = None,
-        skip_manifest: bool = False,
     ):
         """
         Initialize the DataCatalog from a JSON metadata file.
@@ -53,7 +52,9 @@ class DataCatalog:
             mirror: Name of predefined mirror to use (e.g., 'gcp_nodd', 'aws_opendata').
             base_path: Custom base path for resolving relative URIs. Cannot be used with mirror.
             catalog_json: Custom catalog JSON path. Cannot be used with mirror.
-            skip_manifest: Skip loading the manifest for each dataset.
+
+        Note:
+            Dataset manifests are now loaded lazily on first access for better performance.
 
         Raises:
             ValueError: If both mirror and custom parameters are specified.
@@ -90,7 +91,7 @@ class DataCatalog:
         self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(
             self.catalog_uri, schema_path=catalog_schema
         )
-        self.datasets: Dict[str, NNJADataset] = self._parse_datasets(skip_manifest)
+        self.datasets: Dict[str, NNJADataset] = self._parse_datasets()
 
     def __getitem__(self, dataset_name: str) -> NNJADataset:
         """
@@ -104,15 +105,15 @@ class DataCatalog:
         """
         return self.datasets[dataset_name]
 
-    def _parse_datasets(self, skip_manifest: bool = False) -> Dict[str, NNJADataset]:
+    def _parse_datasets(self) -> Dict[str, NNJADataset]:
         """
         Parse datasets from the catalog metadata and initialize NNJADataset instances.
 
-        Args:
-            skip_manifest: Skip loading the manifest for each dataset.
-
         Returns:
             dict: A dictionary of dataset instances or subtypes if multiple exist.
+
+        Note:
+            Dataset manifests are loaded lazily on first access for better performance.
         """
         datasets = {}
         for group, group_metadata in self.catalog_metadata.items():
@@ -129,9 +130,7 @@ class DataCatalog:
                     dataset_json_uri = _resolve_path(
                         self.base_path, msg_metadata["json"]
                     )
-                    datasets[key] = NNJADataset(
-                        dataset_json_uri, self.base_path, skip_manifest
-                    )
+                    datasets[key] = NNJADataset(dataset_json_uri, self.base_path)
                 except Exception as e:
                     if STRICT_LOAD:
                         raise RuntimeError(

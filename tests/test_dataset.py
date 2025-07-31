@@ -105,11 +105,12 @@ def test_dataset_initialization():
     dataset = NNJADataset(
         "tests/sample_data/adpsfc_NC000001_dataset.json",
         base_path="tests/sample_data",
-        skip_manifest=True,
     )
     assert dataset.name == "WMOSYNOP_fixed"
     assert dataset.tags == ["surface", "fixed-station", "synoptic", "wmo"]
-    assert dataset.manifest.empty
+    # Manifest loading should fail for test data (no real parquet files)
+    with pytest.raises(FileNotFoundError, match="No parquet files found"):
+        _ = dataset.manifest
     assert len(dataset.variables) == 3
 
 
@@ -117,7 +118,6 @@ def test_variable_expansion():
     dataset = NNJADataset(
         "tests/sample_data/amsu_dataset.json",
         base_path="tests/sample_data",
-        skip_manifest=True,
     )
     variables = dataset.variables
     channels = [1, 2, 3, 4, 5]
@@ -132,7 +132,6 @@ def test_get_variable():
     dataset = NNJADataset(
         "tests/sample_data/amsu_dataset.json",
         base_path="tests/sample_data",
-        skip_manifest=True,
     )
     variable = dataset["lat"]
     assert variable.id == "lat"

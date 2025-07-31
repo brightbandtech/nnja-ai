@@ -11,7 +11,6 @@ def catalog():
         mirror=None,  # Explicitly disable mirror to use custom parameters
         base_path="tests/sample_data",
         catalog_json="catalog.json",
-        skip_manifest=True,
     )
 
 
@@ -96,7 +95,6 @@ def test_custom_initialization():
         mirror=None,  # Explicitly disable mirror to use custom parameters
         base_path="tests/sample_data",
         catalog_json="catalog.json",
-        skip_manifest=True,
     )
     assert catalog.base_path == "tests/sample_data"
     assert catalog.catalog_uri == "tests/sample_data/catalog.json"
