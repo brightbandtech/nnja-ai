@@ -2,7 +2,7 @@
     "name": "WMOSYNOP_fixed",
     "description": "Synoptic - fixed land (originating from WMO SYNOP bulletins).",
     "tags": ["surface", "fixed-station", "synoptic", "wmo"],
-    "parquet_root_path": "foo/bar/fake/parquet/root/",
+    "parquet_root_path": "adpsfc/1bamua/NC000001/",
     "time_index": "OBS_DATE",
     "dimensions": [
       {

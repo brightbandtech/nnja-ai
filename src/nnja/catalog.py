@@ -2,15 +2,47 @@ from nnja import io
 from nnja.dataset import NNJADataset
 import logging
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from importlib import resources
 
 logger = logging.getLogger(__name__)
 
 # Configuration parameters
 STRICT_LOAD = os.getenv("STRICT_LOAD", default=True)
-NNJA_BUCKET = "nnja-ai"
-DEFAULT_CATALOG = f"gs://{NNJA_BUCKET}/data/v1-preview/catalog.json"
+
+# Available data mirrors
+MIRRORS = {
+    "gcp_brightband": {
+        "base_path": "gs://nnja-ai/data/v1",
+        "catalog_json": "catalog.json",
+    },
+    "gcp_nodd": {
+        "base_path": "gs://gcp-nnja-ai/data/v1",
+        "catalog_json": "catalog.json",
+    },
+}
+
+DEFAULT_MIRROR = "gcp_nodd"
+
+
+def _resolve_path(base_path: str, relative_path: str) -> str:
+    """Resolve a relative path against a base path, or return absolute paths as-is.
+
+    Args:
+        base_path: The base path to resolve against
+        relative_path: The path to resolve (can be absolute or relative)
+
+    Returns:
+        str: The resolved absolute path
+    """
+    # If the path contains a scheme (e.g., gs://, s3://, http://), it's absolute
+    if "://" in relative_path:
+        return relative_path
+
+    # Otherwise, join with base_path
+    base_path = base_path.rstrip("/")
+    relative_path = relative_path.lstrip("/")
+    return f"{base_path}/{relative_path}"
 
 
 class DataCatalog:
@@ -20,28 +52,62 @@ class DataCatalog:
     and provides some basic search/list functionality.
 
     Attributes:
-        json_uri (str): Path to the JSON file (local or cloud storage).
+        base_path (str): Base path for resolving relative URIs.
+        catalog_uri (str): Full URI to the catalog JSON file.
         catalog_metadata (dict): Metadata of the catalog, loaded from the JSON file.
         datasets (dict): Dictionary of dataset instances or subtypes.
     """
 
-    def __init__(self, json_uri: str = DEFAULT_CATALOG, skip_manifest: bool = False):
+    def __init__(
+        self,
+        mirror: Optional[str] = DEFAULT_MIRROR,
+        base_path: Optional[str] = None,
+        catalog_json: Optional[str] = None,
+        skip_manifest: bool = False,
+    ):
         """
         Initialize the DataCatalog from a JSON metadata file.
 
         Args:
-            json_uri: Path to the JSON file (local or cloud storage).
+            mirror: Name of predefined mirror to use (e.g., 'gcp_nodd', 'aws_opendata').
+            base_path: Custom base path for resolving relative URIs. Cannot be used with mirror.
+            catalog_json: Custom catalog JSON path. Cannot be used with mirror.
             skip_manifest: Skip loading the manifest for each dataset.
+
+        Raises:
+            ValueError: If both mirror and custom parameters are specified.
         """
+        # Validate parameters - no mix and match
+        if mirror is not None and (base_path is not None or catalog_json is not None):
+            raise ValueError(
+                "Cannot specify both 'mirror' and custom parameters ('base_path', 'catalog_json'). "
+                "Use either a predefined mirror or custom configuration."
+            )
+
+        # Configure based on mirror or custom parameters
+        if mirror is not None:
+            mirror_config = MIRRORS[mirror]  # Let this raise KeyError if invalid
+            self.base_path = mirror_config["base_path"]
+            catalog_relative_path = mirror_config["catalog_json"]
+        else:
+            if base_path is None or catalog_json is None:
+                raise ValueError(
+                    "When not using a predefined mirror, both 'base_path' and 'catalog_json' must be specified."
+                )
+            self.base_path = base_path
+            catalog_relative_path = catalog_json
+
+        # Resolve catalog URI
+        self.catalog_uri = _resolve_path(self.base_path, catalog_relative_path)
+
         import nnja.schemas
 
         catalog_schema = resources.files(nnja.schemas).joinpath(
             "catalog_schema_v1.json"
         )
 
-        self.json_uri = json_uri
         self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(
-            json_uri, schema_path=catalog_schema
+            self.catalog_uri, schema_path=catalog_schema
         )
         self.datasets: Dict[str, NNJADataset] = self._parse_datasets(skip_manifest)
 
@@ -78,7 +144,13 @@ class DataCatalog:
                     else group + "_" + msg_metadata["name"]
                 )
                 try:
-                    datasets[key] = NNJADataset(msg_metadata["json"], skip_manifest)
+                    # Resolve dataset JSON path relative to base_path
+                    dataset_json_uri = _resolve_path(
+                        self.base_path, msg_metadata["json"]
+                    )
+                    datasets[key] = NNJADataset(
+                        dataset_json_uri, self.base_path, skip_manifest
+                    )
                 except Exception as e:
                     if STRICT_LOAD:
                         raise RuntimeError(
