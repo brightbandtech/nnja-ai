@@ -35,8 +35,14 @@ def _resolve_path(base_path: str, relative_path: str) -> str:
     Returns:
         str: The resolved absolute path
     """
+    import os.path
+
     # If the path contains a scheme (e.g., gs://, s3://, http://), it's absolute
     if "://" in relative_path:
+        return relative_path
+
+    # If it's an absolute local path (starts with / on Unix or C:\ on Windows), return as-is
+    if os.path.isabs(relative_path):
         return relative_path
 
     # Otherwise, join with base_path

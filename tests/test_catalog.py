@@ -71,13 +71,22 @@ def test_mirror_path_resolution():
     assert "base_path" in MIRRORS["gcp_nodd"]
     assert "catalog_json" in MIRRORS["gcp_nodd"]
 
-    # Test path resolution
+    # Test relative path resolution
     base_path = "gs://test-bucket/data"
     catalog_json = "catalog.json"
     expected_uri = "gs://test-bucket/data/catalog.json"
-
     resolved_uri = _resolve_path(base_path, catalog_json)
     assert resolved_uri == expected_uri
+
+    # Test absolute cloud URI passthrough
+    absolute_cloud_uri = "gs://other-bucket/catalog.json"
+    resolved_uri = _resolve_path(base_path, absolute_cloud_uri)
+    assert resolved_uri == absolute_cloud_uri
+
+    # Test absolute local path passthrough
+    absolute_local_path = "/tmp/local/catalog.json"
+    resolved_uri = _resolve_path(base_path, absolute_local_path)
+    assert resolved_uri == absolute_local_path
 
 
 def test_custom_initialization():
