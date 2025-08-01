@@ -1,4 +1,5 @@
 from nnja import io
+from nnja.io import _resolve_path
 from nnja.variable import NNJAVariable
 from nnja.exceptions import ManifestNotFoundError
 from typing import Dict, List, Union
@@ -28,32 +29,6 @@ DimensionIndexKey = Union[
 
 
 logger = logging.getLogger(__name__)
-
-
-def _resolve_path(base_path: str, relative_path: str) -> str:
-    """Resolve a relative path against a base path, or return absolute paths as-is.
-
-    Args:
-        base_path: The base path to resolve against
-        relative_path: The path to resolve (can be absolute or relative)
-
-    Returns:
-        str: The resolved absolute path
-    """
-    import os.path
-
-    # If the path contains a scheme (e.g., gs://, s3://, http://), it's absolute
-    if "://" in relative_path:
-        return relative_path
-
-    # If it's an absolute local path (starts with / on Unix or C:\ on Windows), return as-is
-    if os.path.isabs(relative_path):
-        return relative_path
-
-    # Otherwise, join with base_path
-    base_path = base_path.rstrip("/")
-    relative_path = relative_path.lstrip("/")
-    return f"{base_path}/{relative_path}"
 
 
 class NNJADataset:

@@ -64,7 +64,8 @@ def _test_catalog_search_by_tag(catalog):
 
 def test_mirror_path_resolution():
     """Test that mirror configuration resolves paths correctly."""
-    from nnja.catalog import MIRRORS, _resolve_path
+    from nnja.catalog import MIRRORS
+    from nnja.io import _resolve_path
 
     # Test that mirrors are configured correctly
     assert "gcp_nodd" in MIRRORS
