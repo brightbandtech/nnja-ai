@@ -1,4 +1,5 @@
 from nnja import io
+from nnja.io import _resolve_path
 from nnja.variable import NNJAVariable
 from nnja.exceptions import ManifestNotFoundError
 from typing import Dict, List, Union
@@ -55,12 +56,14 @@ class NNJADataset:
             f"description='{self.description[:100]})'"
         )
 
-    def __init__(self, json_uri: str, skip_manifest: bool = False):
+    def __init__(self, json_uri: str, base_path: str = "", skip_manifest: bool = False):
         """
         Initialize an NNJADataset object from a JSON file or URI.
 
         Args:
             json_uri: Path or URI to the dataset's JSON metadata.
+            base_path: Base path for resolving relative parquet_root_path.
+            skip_manifest: Skip loading the manifest for each dataset.
         """
         import nnja.schemas
 
@@ -68,12 +71,16 @@ class NNJADataset:
             "dataset_schema_v1.json"
         )
         self.json_uri = json_uri
+        self.base_path = base_path
         dataset_metadata = io.read_json(json_uri, dataset_schema)
         self.dataset_metadata = dataset_metadata
         self.name: str = dataset_metadata["name"]
         self.description: str = dataset_metadata["description"]
         self.tags: List[str] = dataset_metadata["tags"]
-        self.parquet_root_path: str = dataset_metadata["parquet_root_path"]
+
+        # Resolve parquet_root_path relative to base_path
+        raw_parquet_path = dataset_metadata["parquet_root_path"]
+        self.parquet_root_path: str = _resolve_path(base_path, raw_parquet_path)
         self.manifest: pd.DataFrame = pd.DataFrame()
         if not skip_manifest:
             self.manifest = io.load_manifest(self.parquet_root_path)

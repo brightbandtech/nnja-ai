@@ -97,13 +97,15 @@ def sample_dataset(tmp_path):
     with open(tmp_path / "test_dataset.json", "w") as f:
         json.dump(metadata, f)
 
-    dataset = NNJADataset(str(tmp_path / "test_dataset.json"))
+    dataset = NNJADataset(str(tmp_path / "test_dataset.json"), base_path=str(tmp_path))
     return dataset
 
 
 def test_dataset_initialization():
     dataset = NNJADataset(
-        "tests/sample_data/adpsfc_NC000001_dataset.json", skip_manifest=True
+        "tests/sample_data/adpsfc_NC000001_dataset.json",
+        base_path="tests/sample_data",
+        skip_manifest=True,
     )
     assert dataset.name == "WMOSYNOP_fixed"
     assert dataset.tags == ["surface", "fixed-station", "synoptic", "wmo"]
@@ -112,7 +114,11 @@ def test_dataset_initialization():
 
 
 def test_variable_expansion():
-    dataset = NNJADataset("tests/sample_data/amsu_dataset.json", skip_manifest=True)
+    dataset = NNJADataset(
+        "tests/sample_data/amsu_dataset.json",
+        base_path="tests/sample_data",
+        skip_manifest=True,
+    )
     variables = dataset.variables
     channels = [1, 2, 3, 4, 5]
     expected_variables = ["lat", "lon", "time", "said", "fovn"]
@@ -123,7 +129,11 @@ def test_variable_expansion():
 
 
 def test_get_variable():
-    dataset = NNJADataset("tests/sample_data/amsu_dataset.json", skip_manifest=True)
+    dataset = NNJADataset(
+        "tests/sample_data/amsu_dataset.json",
+        base_path="tests/sample_data",
+        skip_manifest=True,
+    )
     variable = dataset["lat"]
     assert variable.id == "lat"
     assert variable.description == "Latitude of the observation."
