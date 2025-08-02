@@ -2,7 +2,7 @@ from nnja import io
 from nnja.io import _resolve_path
 from nnja.variable import NNJAVariable
 from nnja.exceptions import ManifestNotFoundError
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 import copy
 import pandas as pd
 import logging
@@ -85,7 +85,7 @@ class NNJADataset:
         self.parquet_root_path: str = _resolve_path(base_path, raw_parquet_path)
 
         # Initialize manifest as None - will be lazy loaded on first access
-        self._manifest_cache: pd.DataFrame = None
+        self._manifest_cache: Optional[pd.DataFrame] = None
         self._manifest_loaded: bool = False
         self.dimensions: Dict[str, Dict] = self._parse_dimensions(
             dataset_metadata.get("dimensions", [])
