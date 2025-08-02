@@ -58,7 +58,12 @@ class NNJAVariable:
 
     def __repr__(self) -> str:
         """Provide a string representation of the variable."""
-        return f'NNJAVariable("{self.id}" ({self.category}), {self.description})'
+        table_str = ""
+        if "code table" in self.extra_metadata:
+            table_str = f' [code table: {self.extra_metadata["code table"]}]'
+        elif "flag table" in self.extra_metadata:
+            table_str = f' [flag table: {self.extra_metadata["flag table"]}]'
+        return f'NNJAVariable("{self.id}" ({self.category}), {self.description}){table_str}'
 
     def info(self) -> str:
         """Provide a summary of the variable."""
@@ -69,4 +74,24 @@ class NNJAVariable:
         )
         if self.dimension is not None:
             info_str += f"\nDimension: {self.dimension}"
+        # Add code/flag table info if present
+        if "code table" in self.extra_metadata:
+            info_str += f"\nCode Table: {self.extra_metadata['code table']}"
+            if "code table link" in self.extra_metadata:
+                info_str += (
+                    f"\nCode Table Link: {self.extra_metadata['code table link']}"
+                )
+        if "flag table" in self.extra_metadata:
+            info_str += f"\nFlag Table: {self.extra_metadata['flag table']}"
+            if "flag table link" in self.extra_metadata:
+                info_str += (
+                    f"\nFlag Table Link: {self.extra_metadata['flag table link']}"
+                )
         return info_str
+
+    @property
+    def is_code_or_flag_table(self) -> bool:
+        """Return True if the variable is associated with a code or flag table."""
+        return ("code table" in self.extra_metadata) or (
+            "flag table" in self.extra_metadata
+        )
