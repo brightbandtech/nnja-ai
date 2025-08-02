@@ -3,11 +3,13 @@
 ## Unreleased
 ### Added
 - Multi-bucket support with configurable base paths and predefined mirror configurations
+- Lazy manifest loading with automatic loading on first access
 - Documentation and example notebook for upper-air rawinsonde data
 
 ### Changed
 - **Breaking**: `DataCatalog` constructor now uses `mirror` parameter instead of `json_uri`
 - **Breaking**: Catalog and dataset JSONs now use relative paths; `NNJADataset` requires `base_path` parameter
+- **Breaking**: Removed `skip_manifest` parameter; manifests now load lazily by default
 
 ## [0.1.1] - 2025-03-12
 ### Added

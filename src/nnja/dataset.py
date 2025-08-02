@@ -2,7 +2,7 @@ from nnja import io
 from nnja.io import _resolve_path
 from nnja.variable import NNJAVariable
 from nnja.exceptions import ManifestNotFoundError
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 import copy
 import pandas as pd
 import logging
@@ -56,14 +56,16 @@ class NNJADataset:
             f"description='{self.description[:100]})'"
         )
 
-    def __init__(self, json_uri: str, base_path: str = "", skip_manifest: bool = False):
+    def __init__(self, json_uri: str, base_path: str = ""):
         """
         Initialize an NNJADataset object from a JSON file or URI.
 
         Args:
             json_uri: Path or URI to the dataset's JSON metadata.
             base_path: Base path for resolving relative parquet_root_path.
-            skip_manifest: Skip loading the manifest for each dataset.
+
+        Note:
+            The manifest is now loaded lazily on first access for better performance.
         """
         import nnja.schemas
 
@@ -81,9 +83,10 @@ class NNJADataset:
         # Resolve parquet_root_path relative to base_path
         raw_parquet_path = dataset_metadata["parquet_root_path"]
         self.parquet_root_path: str = _resolve_path(base_path, raw_parquet_path)
-        self.manifest: pd.DataFrame = pd.DataFrame()
-        if not skip_manifest:
-            self.manifest = io.load_manifest(self.parquet_root_path)
+
+        # Initialize manifest as None - will be lazy loaded on first access
+        self._manifest_cache: Optional[pd.DataFrame] = None
+        self._manifest_loaded: bool = False
         self.dimensions: Dict[str, Dict] = self._parse_dimensions(
             dataset_metadata.get("dimensions", [])
         )
@@ -91,14 +94,29 @@ class NNJADataset:
             dataset_metadata["variables"]
         )
 
+    @property
+    def manifest(self) -> pd.DataFrame:
+        """Get the dataset's manifest of parquet partitions, loading it if needed."""
+        if not self._manifest_loaded:
+            print(f"Loading manifest for dataset '{self.name}'...")
+            self._manifest_cache = io.load_manifest(self.parquet_root_path)
+            self._manifest_loaded = True
+        return self._manifest_cache
+
+    @manifest.setter
+    def manifest(self, value: pd.DataFrame):
+        """Set the manifest (used internally for time subsetting)."""
+        self._manifest_cache = value
+        self._manifest_loaded = True
+
     def load_manifest(self):
-        """Load the dataset's manifest of parquet partitions.
+        """Explicitly load the dataset's manifest of parquet partitions.
 
         Returns:
             NNJADataset: The dataset object with the manifest loaded.
         """
-
-        self.manifest: pd.DataFrame = io.load_manifest(self.parquet_root_path)
+        # Force reload by accessing the property
+        _ = self.manifest
         return self
 
     def __getitem__(
@@ -264,7 +282,7 @@ class NNJADataset:
         """
         if self.manifest.empty:
             raise ManifestNotFoundError(
-                "Manifest is empty. Load the manifest first with load_manifest()."
+                "Manifest is empty. No parquet files found in the dataset directory."
             )
 
         files = self.manifest["file"].tolist()
