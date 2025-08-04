@@ -11,6 +11,9 @@
 - **Breaking**: Catalog and dataset JSONs now use relative paths; `NNJADataset` requires `base_path` parameter
 - **Breaking**: Removed `skip_manifest` parameter; manifests now load lazily by default
 
+### Fixed
+- Fixed dimension selection filtering where `dim_val` property was not being set correctly for dimensional variables
+
 ## [0.1.1] - 2025-03-12
 ### Added
 - Documentation for the following datasets: ADPSFC, geostationary satellites

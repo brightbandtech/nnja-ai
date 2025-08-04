@@ -246,7 +246,7 @@ class NNJADataset:
         for value in dim_values:
             formatted_value = dim_fmt_str.format(value)
             full_id = f"{var_metadata['id']}_{formatted_value}"
-            variables[full_id] = NNJAVariable(var_metadata, full_id)
+            variables[full_id] = NNJAVariable(var_metadata, full_id, dim_val=value)
         return variables
 
     def info(self) -> str:
@@ -476,7 +476,6 @@ class NNJADataset:
                 base_ids_to_update.add(var.base_id)
         for base_id in base_ids_to_update:
             new_dataset._update_variable_with_dimension(base_id, subset_values)
-        print(dim_name, selection, subset_values)
         # Also update dimension values.
         new_dataset.dimensions[dim_name]["values"] = subset_values
 
