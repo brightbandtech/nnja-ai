@@ -7,3 +7,7 @@ serve-docs:
 build-docs:
 	@echo "Building docs"
 	uv run mkdocs build
+
+next-version:
+	@echo "Determining next version"
+	@uv run semantic-release version --print
