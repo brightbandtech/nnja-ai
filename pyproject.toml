@@ -96,8 +96,6 @@ disable_error_code = "import-untyped"
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
 branch = "main"
-changelog_file = "CHANGELOG.md"
-changelog_mode = "update"
 dist_path = "dist/"
 upload_to_pypi = false
 remote = { type="github" }
