@@ -14,8 +14,8 @@ next-version:
 
 minor-release:
 	@echo "Creating minor release"
-	@uv run semantic-release -vvv version --minor --no-changelog
+	@uv run semantic-release -vvv --noop version --minor --no-changelog
 
 patch-release:
 	@echo "Creating patch release"
-	@uv run semantic-release -vvv version --patch --no-changelog
+	@uv run semantic-release -vvv --noop version --patch --no-changelog
