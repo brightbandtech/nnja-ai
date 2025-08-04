@@ -32,6 +32,17 @@
           "json": "adpsfc_NC000007_dataset.json"
         }
       }
+    },
+    "adpupa": {
+      "description": "Upper-air data from radiosondes with pressure level observations.",
+      "datasets": {
+        "NC002001": {
+          "name": "conv-adpupa-NC002001",
+          "description": "ADP Upper-air data; Rawinsonde - fixed land",
+          "tags": ["adpupa", "upper air"],
+          "json": "adpupa_pressure_dataset.json"
+        }
+      }
     }
   }
 

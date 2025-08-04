@@ -1,0 +1,42 @@
+{
+    "name": "conv-adpupa-NC002001",
+    "description": "ADP Upper-air data; Rawinsonde - fixed land",
+    "tags": ["adpupa", "pressure"],
+    "parquet_root_path": "conv/adpupa/NC002001/",
+    "dimensions": [
+        {
+            "pressure": {
+                "description": "Pressure level",
+                "units": "Pa",
+                "values": [1000, 5000, 50000, 85000],
+                "format_str": "PRLC{:d}"
+            }
+        }
+    ],
+    "variables": [
+        {
+            "id": "LAT",
+            "description": "Latitude of the observation",
+            "category": "primary descriptors",
+            "dimension": null
+        },
+        {
+            "id": "time",
+            "description": "Time of the observation",
+            "category": "primary descriptors",
+            "dimension": null
+        },
+        {
+            "id": "TMDB",
+            "description": "Temperature/air temperature",
+            "category": "primary data",
+            "dimension": "pressure"
+        },
+        {
+            "id": "WSPD",
+            "description": "Wind speed",
+            "category": "primary data",
+            "dimension": "pressure"
+        }
+    ]
+}
