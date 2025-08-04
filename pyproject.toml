@@ -98,7 +98,7 @@ version_toml = ["pyproject.toml:project.version"]
 branch = "main"
 dist_path = "dist/"
 upload_to_pypi = false
-remote = { type="github", env="GITHUB_TOKEN" }
+remote = { type="github" }
 commit_author = "semantic-release <semantic-release@python>"
 commit_parser = "conventional"
 commit_parser_options = { parse_squash_commits="false", parse_merge_commits="true" }

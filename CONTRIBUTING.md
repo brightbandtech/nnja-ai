@@ -59,6 +59,15 @@ This project is focused on making the large parquet datasets of the [NNJA-AI](ht
 
 ---
 
+## Releases
+
+- We provide a very minimal set of tools to help automate releases using `python-semantic-release`. 
+- The [Makefile]() includes two rules, `{minor,patch}-release`, which document the correct commands to run.
+  - You will need to source an appropriate GitHub access token and add it to a local `.env` file with the name **GH_TOKEN** in order to run these commands.
+- In general, maintainers are responsible for creating releases.
+
+---
+
 ## Project Maintainers
 
 - @hansmohrmann

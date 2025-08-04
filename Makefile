@@ -1,8 +1,12 @@
 .PHONY: build-docs serve-docs
 
+include .env
+export GH_TOKEN
+
 serve-docs:
 	@echo "Serving docs at http://localhost:8000"
 	uv run mkdocs serve
+
 
 build-docs:
 	@echo "Building docs"
@@ -14,8 +18,8 @@ next-version:
 
 minor-release:
 	@echo "Creating minor release"
-	@uv run semantic-release -vvv --noop version --minor --no-changelog
+	@GH_TOKEN=${GH_TOKEN} uv run semantic-release -vvv --noop version --minor --no-changelog
 
 patch-release:
 	@echo "Creating patch release"
-	@uv run semantic-release -vvv --noop version --patch --no-changelog
+	@GH_TOKEN=${GH_TOKEN} uv run semantic-release -vvv --noop version --patch --no-changelog
