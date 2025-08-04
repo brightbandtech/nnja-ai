@@ -41,6 +41,7 @@ dev = [
     "mkdocstrings[python]>=0.29.1",
     "mkdocs-autoapi[python]>=0.4.1",
     "mkdocs-material>=9.6.14",
+    "python-semantic-release>=10.3.0",
 ]
 
 [project.optional-dependencies]
@@ -91,3 +92,27 @@ docstring-code-line-length = "dynamic"
 
 [tool.mypy]
 disable_error_code = "import-untyped"
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+changelog_mode = "update"
+dist_path = "dist/"
+upload_to_pypi = false
+remote = { type="github" }
+commit_author = "semantic-release <semantic-release@python>"
+commit_parser = "conventional"
+commit_parser_options = { parse_squash_commits="false", parse_merge_commits="true" }
+minor_tag = "[minor]"
+patch_tag = "[patch]"
+major_tag = "[major]"
+build_command = """
+  uv lock --offline
+  git add uv.lock
+  uv build
+"""
+# Only create GitHub releases for the current version, not historical ones
+github_release_mode = "latest"
+# Ensure assets are only uploaded for the current release, not past ones
+upload_assets_for_all_releases = false
