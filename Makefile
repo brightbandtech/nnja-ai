@@ -11,3 +11,11 @@ build-docs:
 next-version:
 	@echo "Determining next version"
 	@uv run semantic-release version --print
+
+minor-release:
+	@echo "Creating minor release"
+	@uv run semantic-release -vvv version --minor --no-changelog
+
+patch-release:
+	@echo "Creating patch release"
+	@uv run semantic-release -vvv version --patch --no-changelog
