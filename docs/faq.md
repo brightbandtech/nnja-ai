@@ -11,8 +11,7 @@
 - [How do I get in touch with you?](#how-do-i-get-in-touch-with-you)
 
 ## What is the status of this archive?
-The NNJA-AI archive is currently a preview release; once we have updated the archive with all datasets and received user feedback,
-we will release a stable version with datasets backfill to match the data available in the original NNJA archive.
+The NNJA-AI v1 release contains all the data currently processed to parquet form at time of writing (Aug 2025). Data processing from the NNJA archive is ongoing at Brightband. New datasets will be added periodically.
 
 ## What datasets do you have?
 All datasets currently available are listed in the [datasets documentation](/docs/datasets.md).
@@ -21,15 +20,15 @@ We are working to add more datasets to the archive, and will update the document
 ## What format is the data in and where is it stored?
 The data is stored on GCS in parquets with partitions for each day.
 See the example notebook [here](/example_notebooks/basic_dataset_example.ipynb) for a guide on how to access the data.
-If you prefer to bypass this SDK, you can currently find the v1-preview datasets here:
-`gs://nnja-ai/data/v1-preview/` for direct access to the parquet files.
+If you prefer to bypass this SDK, you can currently find the v1 datasets here:
+`gs://nnja-ai/data/v1/` for direct access to the parquet files.
 
 ## What have you done to process the NNJA BUFR files?
 1) convert from BUFR to AVRO, preserving all the structure of the original BUFR messages (nested types, etc.).
 2) 'flatten' the complex columns (array, struct) into simple scalar columns.
 3) combined 6-hourly files into daily Parquet partitions based on the observation timestamp.
 
-## Why is are some columns still a structured field?
+## Why are some columns still a structured field?
 The original BUFR data is highly structured, with multiple levels of nested data.
 While we have flattened the data as much as possible, there are some cases where the data is still structured.
 This is either because the original data could not be flattened
@@ -57,10 +56,10 @@ dataset = dataset.sel(variables=primary_vars)
 ## What are code and flag table variables?
 Some variables are encoded as a code table or flag table.
 We're working on adding a helper utility to incorporate these into the archive and decode them,
-but in the meantime you can use the `extra_metadata` to view the code table or flag table to link to the NOAA code table page.
+but in the meantime you can use the Variable.info() method to view the code table or flag table to link to the NOAA code table page, or look them up directly here: https://www.nco.ncep.noaa.gov/sib/jeff/CodeFlag_0_STDv31_LOC7.html
 
 ```python
-catalog = DataCatalog()  # Uses default NOAA NODD mirror on GCP
+catalog = DataCatalog()
 ds = catalog['seviri-sevasr-NC021042']
 ds.variables['SIDENSEQ.SIDGRSEQ.SAID'].extra_metadata
 ```

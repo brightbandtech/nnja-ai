@@ -2,8 +2,7 @@
 This is the companion Python SDK to the [Brightband](https://www.brightband.com/) AI-ready reprocessing of the [NOAA NASA Joint Archive](https://psl.noaa.gov/data/nnja_obs/) (NNJA).
 It is meant to serve as a helpful interface between a user and the underlying NNJA datasets (which currently consist of parquet files on [GCS](https://console.cloud.google.com/storage/browser/nnja-ai)).
 
-> ⚠️ **Beta Status Warning**: This package is currently in beta (pre-1.0.0). Breaking changes may occur between releases. Users are advised to install directly from the main branch to ensure they have the latest version with all fixes and improvements.
-
+The V1 release of the NNJA-AI dataset and SDK represents a major increment in availability of NNJA data, with ~50 TiB of observations made available in parquet form along with a data catalog and code examples in this SDK.
 
 ## Background
 The NNJA archive project is a curated archive of Earth system data from 1979 to present.
@@ -38,7 +37,8 @@ datasets in catalog:
 ['amsua-1bamua-NC021023',
  'atms-atms-NC021203',
  'mhs-1bmhs-NC021027',
- 'cris-crisf4-NC021206']
+ 'cris-crisf4-NC021206',
+ ...]
 ```
 
 ## How to Cite
