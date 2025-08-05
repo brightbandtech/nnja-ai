@@ -52,7 +52,10 @@ class NNJADataset:
 
     def __repr__(self):
         """Return a concise string representation of the dataset."""
-        return f"NNJADataset(name='{self.name}', " f"description='{self.description[:100]})'"
+        return (
+            f"NNJADataset(name='{self.name}', "
+            f"description='{self.description[:100]})'"
+        )
 
     def __init__(self, json_uri: str, base_path: str = ""):
         """
@@ -67,7 +70,9 @@ class NNJADataset:
         """
         import nnja_ai.schemas
 
-        dataset_schema = resources.files(nnja_ai.schemas).joinpath("dataset_schema_v1.json")
+        dataset_schema = resources.files(nnja_ai.schemas).joinpath(
+            "dataset_schema_v1.json"
+        )
         self.json_uri = json_uri
         self.base_path = base_path
         dataset_metadata = io.read_json(json_uri, dataset_schema)
@@ -83,8 +88,12 @@ class NNJADataset:
         # Initialize manifest as None - will be lazy loaded on first access
         self._manifest_cache: Optional[pd.DataFrame] = None
         self._manifest_loaded: bool = False
-        self.dimensions: Dict[str, Dict] = self._parse_dimensions(dataset_metadata.get("dimensions", []))
-        self.variables: Dict[str, NNJAVariable] = self._expand_variables(dataset_metadata["variables"])
+        self.dimensions: Dict[str, Dict] = self._parse_dimensions(
+            dataset_metadata.get("dimensions", [])
+        )
+        self.variables: Dict[str, NNJAVariable] = self._expand_variables(
+            dataset_metadata["variables"]
+        )
 
     @property
     def manifest(self) -> pd.DataFrame:
@@ -111,7 +120,9 @@ class NNJADataset:
         _ = self.manifest
         return self
 
-    def __getitem__(self, key: Union[str, List[str]]) -> Union[NNJAVariable, "NNJADataset"]:
+    def __getitem__(
+        self, key: Union[str, List[str]]
+    ) -> Union[NNJAVariable, "NNJADataset"]:
         """Fetch a specific variable by ID, or subset the dataset by a list of variable names.
 
         If a single variable ID is provided, return the variable object.
@@ -145,9 +156,13 @@ class NNJADataset:
             if col not in self.variables:
                 raise ValueError(f"Variable '{col}' not found in dataset.")
         new_dataset = copy.deepcopy(self)
-        new_dataset.variables = {k: v for k, v in self.variables.items() if k in columns}
+        new_dataset.variables = {
+            k: v for k, v in self.variables.items() if k in columns
+        }
         needed_dims = set([v.dimension for v in new_dataset.variables.values()])
-        new_dataset.dimensions = {k: v for k, v in self.dimensions.items() if k in needed_dims}
+        new_dataset.dimensions = {
+            k: v for k, v in self.dimensions.items() if k in needed_dims
+        }
         return new_dataset
 
     def _parse_dimensions(self, dimensions_metadata: list) -> dict:
@@ -169,7 +184,9 @@ class NNJADataset:
                 if len(metadata["values"]) != len(set(metadata["values"])):
                     raise ValueError(f"Dimension '{name}' values must be unique.")
                 if not all(isinstance(i, (int, float)) for i in metadata["values"]):
-                    raise ValueError(f"Dimension '{name}' values must be integers or floats.")
+                    raise ValueError(
+                        f"Dimension '{name}' values must be integers or floats."
+                    )
                 if metadata["values"] != sorted(metadata["values"]):
                     raise ValueError(f"Dimension '{name}' values must be sorted.")
                 dimensions[name] = metadata
@@ -199,12 +216,20 @@ class NNJADataset:
                 dim = self.dimensions[dim_name]
 
                 if dim:
-                    variables.update(self._expand_variable_with_dimension(var_metadata, dim["values"]))
+                    variables.update(
+                        self._expand_variable_with_dimension(
+                            var_metadata, dim["values"]
+                        )
+                    )
             else:
-                variables[var_metadata["id"]] = NNJAVariable(var_metadata, var_metadata["id"])
+                variables[var_metadata["id"]] = NNJAVariable(
+                    var_metadata, var_metadata["id"]
+                )
         return variables
 
-    def _expand_variable_with_dimension(self, var_metadata: dict, dim_values: list) -> Dict[str, NNJAVariable]:
+    def _expand_variable_with_dimension(
+        self, var_metadata: dict, dim_values: list
+    ) -> Dict[str, NNJAVariable]:
         """Expand a variable tied to a dimension into NNJAVariable objects.
 
         dim_values can either be the full set of values for the dimension, or a subset of values
@@ -257,7 +282,9 @@ class NNJADataset:
             DataFrame: The loaded dataset.
         """
         if self.manifest.empty:
-            raise ManifestNotFoundError("Manifest is empty. No parquet files found in the dataset directory.")
+            raise ManifestNotFoundError(
+                "Manifest is empty. No parquet files found in the dataset directory."
+            )
 
         files = self.manifest["file"].tolist()
         columns = [var.id for var in self.variables.values()]
@@ -280,7 +307,9 @@ class NNJADataset:
             NNJADataset: A new dataset object with the subsetted data.
         """
         if "variables" in kwargs and "columns" in kwargs:
-            raise ValueError("Cannot provide both 'variables' and 'columns' in selection")
+            raise ValueError(
+                "Cannot provide both 'variables' and 'columns' in selection"
+            )
         new_dataset = copy.deepcopy(self)
         for key, value in kwargs.items():
             if key in ["variables", "columns"]:
@@ -311,7 +340,9 @@ class NNJADataset:
                 warnings.warn(f"Naive datetime {dt} assumed to be in UTC", UserWarning)
                 return dt.tz_localize("UTC")
             if str(dt.tzinfo) != "UTC":
-                warnings.warn(f"Non-UTC timezone {dt.tzinfo} converted to UTC", UserWarning)
+                warnings.warn(
+                    f"Non-UTC timezone {dt.tzinfo} converted to UTC", UserWarning
+                )
                 dt = dt.tz_convert("UTC")
             return dt
 
@@ -327,18 +358,30 @@ class NNJADataset:
                 selection = localize_to_utc(selection)
                 subset_df = manifest_df.loc[[selection]]
             case slice():
-                start = localize_to_utc(pd.to_datetime(selection.start)) if selection.start else None
-                stop = localize_to_utc(pd.to_datetime(selection.stop)) if selection.stop else None
+                start = (
+                    localize_to_utc(pd.to_datetime(selection.start))
+                    if selection.start
+                    else None
+                )
+                stop = (
+                    localize_to_utc(pd.to_datetime(selection.stop))
+                    if selection.stop
+                    else None
+                )
                 subset_df = manifest_df.loc[start:stop]
             case list():
                 try:
                     selection = [
-                        localize_to_utc(pd.to_datetime(item)) if isinstance(item, str) else localize_to_utc(item)
+                        localize_to_utc(pd.to_datetime(item))
+                        if isinstance(item, str)
+                        else localize_to_utc(item)
                         for item in selection
                     ]
                     subset_df = manifest_df.loc[selection]
                 except ValueError:
-                    raise TypeError("All items in the list must be valid timestamps or timestamp strings")
+                    raise TypeError(
+                        "All items in the list must be valid timestamps or timestamp strings"
+                    )
             case _:
                 raise TypeError(
                     "Selection must be a pd.Timestamp, valid timestamp string, "
@@ -372,11 +415,15 @@ class NNJADataset:
             dim_values: List of dimension values to keep.
         """
         all_columns = {k: v for k, v in self.variables.items() if v.base_id == var_id}
-        cols_to_drop = [k for k, v in all_columns.items() if v.dim_val not in dim_values]
+        cols_to_drop = [
+            k for k, v in all_columns.items() if v.dim_val not in dim_values
+        ]
         for var_id in cols_to_drop:
             self.variables.pop(var_id)
 
-    def _select_extra_dimension(self, dim_name: str, selection: DimensionIndexKey) -> "NNJADataset":
+    def _select_extra_dimension(
+        self, dim_name: str, selection: DimensionIndexKey
+    ) -> "NNJADataset":
         """
         Subset the dataset by a specific value of an extra dimension.
 
@@ -392,23 +439,37 @@ class NNJADataset:
         match selection:
             case int() | float():
                 if selection not in values:
-                    raise ValueError(f"Value '{selection}' not found in dimension '{dim_name}'")
+                    raise ValueError(
+                        f"Value '{selection}' not found in dimension '{dim_name}'"
+                    )
                 subset_values: List[float] | List[int] = [selection]
             case list():
                 if not all(item in values for item in selection):
                     missing_vals = [item for item in selection if item not in values]
-                    raise ValueError(f"Values {missing_vals} not found in dimension '{dim_name}'")
+                    raise ValueError(
+                        f"Values {missing_vals} not found in dimension '{dim_name}'"
+                    )
                 subset_values = selection
             case slice():
                 if selection.step is not None:
-                    raise NotImplementedError("Step not supported for slicing dimensions")
-                start_idx = values.index(selection.start) if selection.start is not None else None
-                stop_idx = values.index(selection.stop) if selection.stop is not None else None
+                    raise NotImplementedError(
+                        "Step not supported for slicing dimensions"
+                    )
+                start_idx = (
+                    values.index(selection.start)
+                    if selection.start is not None
+                    else None
+                )
+                stop_idx = (
+                    values.index(selection.stop) if selection.stop is not None else None
+                )
                 if start_idx is None and stop_idx is None:
                     raise ValueError("Slice must have at least one bound")
                 subset_values = values[start_idx : stop_idx + 1]
             case _:
-                raise TypeError("Selection must be a single value, a list of values, or a slice")
+                raise TypeError(
+                    "Selection must be a single value, a list of values, or a slice"
+                )
         new_dataset = copy.deepcopy(self)
         base_ids_to_update = set()
         for var_id, var in self.variables.items():

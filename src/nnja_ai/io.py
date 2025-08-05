@@ -159,14 +159,20 @@ def load_parquet(
         case "polars":
             import polars as pl
 
-            return pl.scan_parquet(parquet_uris, storage_options=auth_args, **backend_kwargs).select(columns)
+            return pl.scan_parquet(
+                parquet_uris, storage_options=auth_args, **backend_kwargs
+            ).select(columns)
         case "dask":
             import dask.dataframe as dd
 
-            df = dd.read_parquet(parquet_uris, storage_options=auth_args, **backend_kwargs)
+            df = dd.read_parquet(
+                parquet_uris, storage_options=auth_args, **backend_kwargs
+            )
             return df[columns]
         case _:
-            raise ValueError(f"Unsupported backend: {backend}. Valid options are {Backend.__args__}")
+            raise ValueError(
+                f"Unsupported backend: {backend}. Valid options are {Backend.__args__}"
+            )
 
 
 def _parse_filepath_to_partitions(file_path: str) -> dict:

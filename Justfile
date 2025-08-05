@@ -21,6 +21,11 @@ build-docs:
     @echo "Building docs"
     uv run mkdocs build
 
+# Run the pre-commit hooks on all files in the repo
+pre-commit:
+    @echo "Running pre-commit hooks"
+    uv run pre-commit run --all-files
+
 # Determine the next version number
 next-version:
     @echo "Determining next version"

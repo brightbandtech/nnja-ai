@@ -8,7 +8,13 @@ import polars as pl
 import pytest
 
 from nnja_ai.exceptions import InvalidPartitionKeyError
-from nnja_ai.io import _get_auth_args, _parse_filepath_to_partitions, load_manifest, load_parquet, read_json
+from nnja_ai.io import (
+    _get_auth_args,
+    _parse_filepath_to_partitions,
+    load_manifest,
+    load_parquet,
+    read_json,
+)
 
 
 @pytest.fixture

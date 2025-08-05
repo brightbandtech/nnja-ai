@@ -85,9 +85,13 @@ class DataCatalog:
 
         import nnja_ai.schemas
 
-        catalog_schema = resources.files(nnja_ai.schemas).joinpath("catalog_schema_v1.json")
+        catalog_schema = resources.files(nnja_ai.schemas).joinpath(
+            "catalog_schema_v1.json"
+        )
 
-        self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(self.catalog_uri, schema_path=catalog_schema)
+        self.catalog_metadata: Dict[str, Dict[str, Any]] = io.read_json(
+            self.catalog_uri, schema_path=catalog_schema
+        )
         self.datasets: Dict[str, NNJADataset] = self._parse_datasets()
 
     def __getitem__(self, dataset_name: str) -> NNJADataset:
@@ -117,10 +121,16 @@ class DataCatalog:
             message_types = group_metadata.get("datasets", {})
             for msg_type, msg_metadata in message_types.items():
                 # If there are multiple messages in a group, use message type name in the key.
-                key = group if len(message_types) == 1 else group + "_" + msg_metadata["name"]
+                key = (
+                    group
+                    if len(message_types) == 1
+                    else group + "_" + msg_metadata["name"]
+                )
                 try:
                     # Resolve dataset JSON path relative to base_path
-                    dataset_json_uri = _resolve_path(self.base_path, msg_metadata["json"])
+                    dataset_json_uri = _resolve_path(
+                        self.base_path, msg_metadata["json"]
+                    )
                     datasets[key] = NNJADataset(dataset_json_uri, self.base_path)
                 except Exception as e:
                     if STRICT_LOAD:
@@ -128,13 +138,16 @@ class DataCatalog:
                             f"Failed to load dataset for group '{group}', message type '{msg_type}': {e}"
                         ) from e
                     else:
-                        logger.warning(f"Could not load dataset for group '{group}', message type '{msg_type}': {e}")
+                        logger.warning(
+                            f"Could not load dataset for group '{group}', message type '{msg_type}': {e}"
+                        )
         return datasets
 
     def info(self) -> str:
         """Provide information about the catalog."""
         return "\n".join(
-            f"{group}: {group_metadata['description']}" for group, group_metadata in self.catalog_metadata.items()
+            f"{group}: {group_metadata['description']}"
+            for group, group_metadata in self.catalog_metadata.items()
         )
 
     def list_datasets(self) -> list:
