@@ -2448,10 +2448,6 @@ polars = [
 dev = [
     { name = "build" },
     { name = "coverage" },
-    { name = "mkdocs" },
-    { name = "mkdocs-autoapi", extra = ["python"] },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
     { name = "mypy" },
     { name = "nnja-ai", extra = ["complete"] },
     { name = "pre-commit" },
@@ -2460,6 +2456,12 @@ dev = [
     { name = "python-semantic-release" },
     { name = "ruff" },
     { name = "twine" },
+]
+docs = [
+    { name = "mkdocs" },
+    { name = "mkdocs-autoapi", extra = ["python"] },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
 ]
 
 [package.metadata]
@@ -2483,10 +2485,6 @@ requires-dist = [
 dev = [
     { name = "build", specifier = ">=1.2.1" },
     { name = "coverage", specifier = ">=7.6.9" },
-    { name = "mkdocs", specifier = ">=1.6.1" },
-    { name = "mkdocs-autoapi", extras = ["python"], specifier = ">=0.4.1" },
-    { name = "mkdocs-material", specifier = ">=9.6.14" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.29.1" },
     { name = "mypy", specifier = ">=1.13.0" },
     { name = "nnja-ai", extras = ["complete"], editable = "." },
     { name = "pre-commit", specifier = ">=4.2.0" },
@@ -2495,6 +2493,12 @@ dev = [
     { name = "python-semantic-release", specifier = ">=10.3.0" },
     { name = "ruff", specifier = ">=0.8.2" },
     { name = "twine", specifier = ">=5.1.1" },
+]
+docs = [
+    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs-autoapi", extras = ["python"], specifier = ">=0.4.1" },
+    { name = "mkdocs-material", specifier = ">=9.6.14" },
+    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.29.1" },
 ]
 
 [[package]]

@@ -14,12 +14,12 @@ test:
 # Serve a local build of the project documentation at http://localhost:8000
 serve-docs:
     @echo "Serving docs at http://localhost:8000"
-    uv run mkdocs serve
+    uv run --extra docs mkdocs serve
 
 # Build the project documentation
 build-docs:
     @echo "Building docs"
-    uv run mkdocs build
+    uv run --extra docs mkdocs build
 
 # Run the pre-commit hooks on all files in the repo
 pre-commit:
