@@ -51,5 +51,4 @@ nav:
     - Dataset Overview: example_notebooks/dataset_overview.ipynb
     - ADPSFC (weather station) Example: example_notebooks/adpsfc_example.ipynb
     - ADPUPA (radiosonde) Profile Example: example_notebooks/adpupa_profile_example.ipynb
-
   - FAQ: faq.md
