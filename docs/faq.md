@@ -1,14 +1,17 @@
 # Frequently Asked Questions
 
-- [What is the status of this archive?](#what-is-the-status-of-this-archive)
-- [What datasets do you have?](#what-datasets-do-you-have)
-- [What format is the data in and where is it stored?](#what-format-is-the-data-in-and-where-is-it-stored)
-- [Why is are some columns still a structured field?](#why-is-are-some-columns-still-a-structured-field)
-- [Why is this entire column missing data?](#why-is-this-entire-column-missing-data)
-- [Why didn't you use zarr instead of parquet?](#why-didn-t-you-use-zarr-instead-of-parquet)
-- [There are too many columns! How do I filter them?](#there-are-too-many-columns-how-do-i-filter-them)
-- [Will you keep the datasets current with the most recent data?](#will-you-keep-the-datasets-current-with-the-most-recent-data)
-- [How do I get in touch with you?](#how-do-i-get-in-touch-with-you)
+- [Frequently Asked Questions](#frequently-asked-questions)
+  - [What is the status of this archive?](#what-is-the-status-of-this-archive)
+  - [What datasets do you have?](#what-datasets-do-you-have)
+  - [What format is the data in and where is it stored?](#what-format-is-the-data-in-and-where-is-it-stored)
+  - [What have you done to process the NNJA BUFR files?](#what-have-you-done-to-process-the-nnja-bufr-files)
+  - [Why are some columns still a structured field?](#why-are-some-columns-still-a-structured-field)
+  - [Why didn't you use zarr instead of parquet?](#why-didnt-you-use-zarr-instead-of-parquet)
+  - [There are too many columns! How do I filter them?](#there-are-too-many-columns-how-do-i-filter-them)
+  - [What are code and flag table variables?](#what-are-code-and-flag-table-variables)
+  - [Why is this or that entire column missing data?](#why-is-this-or-that-entire-column-missing-data)
+  - [Will you keep the datasets current with the most recent data?](#will-you-keep-the-datasets-current-with-the-most-recent-data)
+  - [How do I get in touch with you?](#how-do-i-get-in-touch-with-you)
 
 ## What is the status of this archive?
 The NNJA-AI v1 release contains all the data currently processed to parquet form at time of writing (Aug 2025). Data processing from the NNJA archive is ongoing at Brightband. New datasets will be added periodically.
