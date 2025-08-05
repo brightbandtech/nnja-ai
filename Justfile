@@ -35,3 +35,13 @@ minor-release:
 patch-release:
     @echo "Creating patch release"
     uv run semantic-release -vvv --noop version --patch --no-changelog
+
+# Upload a release to PyPI
+pypi-upload tag:
+    @echo "Uploading release {{tag}} to PyPI"
+    git checkout {{tag}}
+    rm -rf dist
+    python -m build
+    twine upload dist/*
+    git checkout -
+    git stash pop
