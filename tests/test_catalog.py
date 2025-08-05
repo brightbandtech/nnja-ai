@@ -125,4 +125,3 @@ def test_custom_parameters_incomplete_error():
         ValueError, match="both 'base_path' and 'catalog_json' must be specified"
     ):
         DataCatalog(mirror=None, catalog_json="custom.json")
-        DataCatalog(mirror=None, catalog_json="custom.json")
