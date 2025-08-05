@@ -1,0 +1,3 @@
+include LICENSE README.md
+exclude docs/*
+exclude tests/*
