@@ -1,4 +1,4 @@
-from nnja.variable import NNJAVariable
+from nnja_ai.variable import NNJAVariable
 
 
 def test_variable_repr_and_info_code_table():
