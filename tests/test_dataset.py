@@ -522,4 +522,3 @@ def test_pressure_dimension_treats_same_as_channel():
     assert "values" in pressure_dim
     assert "format_str" in channel_dim
     assert "format_str" in pressure_dim
-    assert "format_str" in pressure_dim
