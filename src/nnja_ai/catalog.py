@@ -180,4 +180,3 @@ def generate_catalog():
     # by parsing over the dataset jsons
 
     pass
-    pass
