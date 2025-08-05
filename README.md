@@ -1,4 +1,13 @@
-# nnja-ai
+[![GitHub Actions - CI](https://github.com/brightbandtech/nnja-ai/actions/workflows/ci.yaml/badge.svg)](https://github.com/brightbandtech/nnja-ai/actions/workflows/ci.yaml)
+[![ReadTheDocs - Status](https://app.readthedocs.org/projects/nnja-ai/badge/?version=stable)](https://nnja-ai.readthedocs.io/en/stable/)
+[![PyPI - Latest](https://img.shields.io/pypi/v/nnja-ai
+)](https://pypi.org/p/nnja-ai)
+[![zenodo](https://zenodo.org/badge/899259654.svg)](https://doi.org/10.5281/zenodo.14633508)
+
+---
+
+# nnja-ai: multi-modal, AI-ready weather observations
+
 This is the companion Python SDK to the [Brightband](https://www.brightband.com/) AI-ready reprocessing of the [NOAA NASA Joint Archive](https://psl.noaa.gov/data/nnja_obs/) (NNJA).
 It is meant to serve as a helpful interface between a user and the underlying NNJA datasets (which currently consist of parquet files on [GCS](https://console.cloud.google.com/storage/browser/nnja-ai)).
 
@@ -12,8 +21,6 @@ In [partnership with NOAA](https://techpartnerships.noaa.gov/tpo_partnership/mak
 ## Data
 NNJA datasets are organized by sensor/source (e.g. all-sky radiances from the GOES ABI).
 The list of all NNJA datasets can be found on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#data-sources), while the subset that is currently found in the NNJA-AI archive can be found [here](docs/datasets.md) or by exploring the data catalog (this will be be expanding rapidly).
-
-
 
 ## Getting Started
 
@@ -45,7 +52,6 @@ datasets in catalog:
 If you use this library or the Brightband reprocessed NNJA data, please cite it using the following DOI:
 
 [![DOI](https://zenodo.org/badge/899259654.svg)](https://doi.org/10.5281/zenodo.14633508)
-
 
 Additionally, please follow the citation guidance on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#cite
 ).
