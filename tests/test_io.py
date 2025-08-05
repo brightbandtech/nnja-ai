@@ -251,4 +251,3 @@ def test_get_auth_args_gcs_auth_refresh_failure(monkeypatch):
 
     result = _get_auth_args("gs://bucket/path")
     assert result == {"token": "anon"}
-    assert result == {"token": "anon"}
