@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "patternProperties": {
+        "^[a-zA-Z0-9_]+$": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "datasets": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9_]+$": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "tags": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "json": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["name", "description", "tags", "json"]
+                        }
+                    }
+                }
+            },
+            "required": ["description", "datasets"]
+        }
+    }
+}
