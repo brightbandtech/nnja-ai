@@ -20,7 +20,7 @@ In [partnership with NOAA](https://techpartnerships.noaa.gov/tpo_partnership/mak
 
 ## Data
 NNJA datasets are organized by sensor/source (e.g. all-sky radiances from the GOES ABI).
-The list of all NNJA datasets can be found on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#data-sources), while the subset that is currently found in the NNJA-AI archive can be found [here](docs/datasets.md) or by exploring the data catalog (this will be be expanding rapidly).
+The list of all NNJA datasets can be found on the [NNJA project page](https://psl.noaa.gov/data/nnja_obs/#data-sources), while the subset that is currently found in the NNJA-AI archive can be found [here](datasets.md) or by exploring the data catalog (this will be be expanding rapidly).
 
 ## Getting Started
 

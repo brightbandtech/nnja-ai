@@ -21,6 +21,7 @@ extra_css:
 
 plugins:
   - search
+  - mkdocs-jupyter
   - mkdocs-autoapi:
       autoapi_dir: src
   - mkdocstrings:
@@ -45,4 +46,10 @@ nav:
   - Data:
     - Datasets: datasets.md
     - Understanding the Data: understanding-the-data.md
+  - Example Notebooks:
+    - Basic Dataset Example: example_notebooks/basic_dataset_example.ipynb
+    - Dataset Overview: example_notebooks/dataset_overview.ipynb
+    - ADPSFC (weather station) Example: example_notebooks/adpsfc_example.ipynb
+    - ADPUPA (radiosonde) Profile Example: example_notebooks/adpupa_profile_example.ipynb
+
   - FAQ: faq.md

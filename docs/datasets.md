@@ -114,7 +114,7 @@ dataset = dataset.sel(variables=primary_vars)
 dataset.variables
 ```
 
-Some fields have complex meanings; be sure to read [Understanding the Data](/docs/understanding-the-data.md).
+Some fields have complex meanings; be sure to read [Understanding the Data](understanding-the-data.md).
 
 #### ADPSFC - Synoptic Fixed Land (from WMO SYNOP bulletins)
 
@@ -123,7 +123,7 @@ Some fields have complex meanings; be sure to read [Understanding the Data](/doc
 - Message: `NC000001`
 - Dates processed: `1979-01-01 to 2025-03-31`
 
- Surface data from fixed land stations, received through WMO SYNOP bulletins. This dataset and [NC000101](/docs/datasets.md#adpsfc---synoptic-fixed-land-originally-in-bufr) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
+ Surface data from fixed land stations, received through WMO SYNOP bulletins. This dataset and [NC000101](#adpsfc-synoptic-fixed-land-originally-in-bufr) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
 
 
 #### ADPSFC - Synoptic Mobile Land (from WMO SYNOP MOBIL bulletins)
@@ -151,7 +151,7 @@ Surface data from aviation weather reports (METAR/SPECI). This dataset contains 
 - Message: `NC000101`
 - Dates processed: `2020-10-22 to 2025-03-31`
 
-Surface data from fixed land stations, originally received in BUFR format. This dataset and [NC000001](/docs/datasets.md#adpsfc---synoptic-fixed-land-from-wmo-synop-bulletins) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
+Surface data from fixed land stations, originally received in BUFR format. This dataset and [NC000001](#adpsfc-synoptic-fixed-land-from-wmo-synop-bulletins) come from the same sources; the WMO SYNOP bulletins are legacy reporting messages while the BUFR messages are from stations that have migrated to the newer report type. At the current time, most stations have migrated to BUFR.
 
 #### Additional Resources
 
@@ -167,7 +167,7 @@ Surface data from fixed land stations, originally received in BUFR format. This 
 - Message: `NC002001`
 - Dates processsed: `2009-12-31 to 2025-03-31`
 
-Upper-air rawinsonde (radiosonde) data. This is a sparse dataset with coverage over land only. The main data packet is temperature, dew point temperature, wind speed, and wind direction, and geopotential, on pressure levels (columns with prefixes, in order, `TMDB_`, `TMDP_`, `WSPD_`, `WDIR_`, `GP10_`). These data are originally packaged into the `UARLV` column, however their structure does not lend itself well to flattening. The UPA profile plotting [example notebook](/example_notebooks/adpupa_profile_example.ipynb) demonstrates some of the nuances of accessing this data.
+Upper-air rawinsonde (radiosonde) data. This is a sparse dataset with coverage over land only. The main data packet is temperature, dew point temperature, wind speed, and wind direction, and geopotential, on pressure levels (columns with prefixes, in order, `TMDB_`, `TMDP_`, `WSPD_`, `WDIR_`, `GP10_`). These data are originally packaged into the `UARLV` column, however their structure does not lend itself well to flattening. The UPA profile plotting [example notebook](example_notebooks/adpupa_profile_example.ipynb) demonstrates some of the nuances of accessing this data.
 
 #### Additional Resources
 - [BUFR source data on AWS](https://noaa-reanalyses-pds.s3.amazonaws.com/index.html#observations/reanalysis/conv/convbufr/adpupa/)
