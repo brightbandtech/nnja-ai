@@ -17,12 +17,12 @@
 The NNJA-AI v1 release contains all the data currently processed to parquet form at time of writing (Aug 2025). Data processing from the NNJA archive is ongoing at Brightband. New datasets will be added periodically.
 
 ## What datasets do you have?
-All datasets currently available are listed in the [datasets documentation](/docs/datasets.md).
+All datasets currently available are listed in the [datasets documentation](datasets.md).
 We are working to add more datasets to the archive, and will update the documentation as we add more datasets.
 
 ## What format is the data in and where is it stored?
 The data is stored on GCS in parquets with partitions for each day.
-See the example notebook [here](/example_notebooks/basic_dataset_example.ipynb) for a guide on how to access the data.
+See the example notebook [here](example_notebooks/basic_dataset_example.ipynb) for a guide on how to access the data.
 If you prefer to bypass this SDK, you can currently find the v1 datasets here:
 `gs://nnja-ai/data/v1/` for direct access to the parquet files.
 
@@ -77,7 +77,7 @@ ds.variables['SIDENSEQ.SIDGRSEQ.SAID'].extra_metadata
 ## Why is this or that entire column missing data?
 We included all data fields from the original BUFR data.
 Some data fields were not populated in the original data (e.g. GOES warm channels are not present in the ABI data).
-If the [datasets documentation](/docs/datasets.md) does not mention a missing field that you think should be present,
+If the [datasets documentation](datasets.md) does not mention a missing field that you think should be present,
 please raise an issue on [GitHub](https://github.com/brightbandtech/nnja-ai/issues)
 and we will check with the data providers and update the documentation (or if you check, please let us know!).
 
