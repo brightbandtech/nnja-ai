@@ -1,14 +1,15 @@
-from nnja import io
-from nnja.io import _resolve_path
-from nnja.variable import NNJAVariable
-from nnja.exceptions import ManifestNotFoundError
-from typing import Dict, List, Union, Optional
 import copy
-import pandas as pd
 import logging
 import warnings
-from nnja.exceptions import EmptyTimeSubsetError
 from importlib import resources
+from typing import Dict, List, Optional, Union
+
+import pandas as pd
+
+from nnja_ai import io
+from nnja_ai.exceptions import EmptyTimeSubsetError, ManifestNotFoundError
+from nnja_ai.io import _resolve_path
+from nnja_ai.variable import NNJAVariable
 
 # Define the valid types for time selection
 DatetimeIndexKey = Union[
@@ -67,9 +68,9 @@ class NNJADataset:
         Note:
             The manifest is now loaded lazily on first access for better performance.
         """
-        import nnja.schemas
+        import nnja_ai.schemas
 
-        dataset_schema = resources.files(nnja.schemas).joinpath(
+        dataset_schema = resources.files(nnja_ai.schemas).joinpath(
             "dataset_schema_v1.json"
         )
         self.json_uri = json_uri

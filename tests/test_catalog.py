@@ -1,6 +1,7 @@
-from nnja.catalog import DataCatalog, generate_catalog
-from nnja.dataset import NNJADataset
 import pytest
+
+from nnja_ai.catalog import DataCatalog, generate_catalog
+from nnja_ai.dataset import NNJADataset
 
 catalog_path = "tests/sample_data/catalog.json"
 
@@ -63,8 +64,8 @@ def _test_catalog_search_by_tag(catalog):
 
 def test_mirror_path_resolution():
     """Test that mirror configuration resolves paths correctly."""
-    from nnja.catalog import MIRRORS
-    from nnja.io import _resolve_path
+    from nnja_ai.catalog import MIRRORS
+    from nnja_ai.io import _resolve_path
 
     # Test that mirrors are configured correctly
     assert "gcp_nodd" in MIRRORS

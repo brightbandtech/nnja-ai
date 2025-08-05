@@ -1,12 +1,13 @@
-from nnja.dataset import NNJADataset
+import json
+import warnings
+from typing import Dict, Set
+
 import numpy as np
 import pandas as pd
-import json
 import pytest
-from typing import Dict, Set
-import warnings
 
-from nnja.exceptions import EmptyTimeSubsetError
+from nnja_ai.dataset import NNJADataset
+from nnja_ai.exceptions import EmptyTimeSubsetError
 
 
 @pytest.fixture

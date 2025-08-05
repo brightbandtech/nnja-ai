@@ -1,10 +1,11 @@
-from nnja import io
-from nnja.io import _resolve_path
-from nnja.dataset import NNJADataset
 import logging
 import os
-from typing import Dict, Any, Optional
 from importlib import resources
+from typing import Any, Dict, Optional
+
+from nnja_ai import io
+from nnja_ai.dataset import NNJADataset
+from nnja_ai.io import _resolve_path
 
 logger = logging.getLogger(__name__)
 
@@ -82,9 +83,9 @@ class DataCatalog:
         # Resolve catalog URI
         self.catalog_uri = _resolve_path(self.base_path, catalog_relative_path)
 
-        import nnja.schemas
+        import nnja_ai.schemas
 
-        catalog_schema = resources.files(nnja.schemas).joinpath(
+        catalog_schema = resources.files(nnja_ai.schemas).joinpath(
             "catalog_schema_v1.json"
         )
 

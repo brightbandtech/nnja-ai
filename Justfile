@@ -21,6 +21,17 @@ build-docs:
     @echo "Building docs"
     uv run mkdocs build
 
+# Run the pre-commit hooks on all files in the repo
+pre-commit:
+    @echo "Running pre-commit hooks"
+    uv run pre-commit run --all-files
+
+# Run the coverage report
+coverage:
+    @echo "Running coverage report"
+    uv run coverage run -m pytest
+    uv run coverage report
+
 # Determine the next version number
 next-version:
     @echo "Determining next version"
@@ -41,7 +52,6 @@ pypi-upload tag:
     @echo "Uploading release {{tag}} to PyPI"
     git checkout {{tag}}
     rm -rf dist
-    python -m build
-    twine upload dist/*
+    uv run python -m build
+    uv run twine upload dist/*
     git checkout -
-    git stash pop
