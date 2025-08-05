@@ -1,6 +1,6 @@
 [project]
 name = "nnja-ai"
-version = "0.2.0"
+version = "0.2.1"
 description = "Find and load data from the Brightband AI-ready mirror of the NOAA NASA Joint Archive (NNJA) of Observations for Earth System Reanalysis"
 keywords = ["NNJA", "artificial intelligence", "earth system reanalysis", "data catalog", "dataset", "earth observation"]
 license = { file = "LICENSE" }
