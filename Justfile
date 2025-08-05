@@ -26,6 +26,12 @@ pre-commit:
     @echo "Running pre-commit hooks"
     uv run pre-commit run --all-files
 
+# Run the coverage report
+coverage:
+    @echo "Running coverage report"
+    uv run coverage run -m pytest
+    uv run coverage report
+
 # Determine the next version number
 next-version:
     @echo "Determining next version"
