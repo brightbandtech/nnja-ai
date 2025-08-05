@@ -41,7 +41,6 @@ pypi-upload tag:
     @echo "Uploading release {{tag}} to PyPI"
     git checkout {{tag}}
     rm -rf dist
-    python -m build
-    twine upload dist/*
+    uv run python -m build
+    uv run twine upload dist/*
     git checkout -
-    git stash pop
