@@ -57,14 +57,14 @@ dev = [
     "twine>=5.1.1",
     "pre-commit>=4.2.0",
 ]
+
+[project.optional-dependencies]
 docs = [
     "mkdocs>=1.6.1",
     "mkdocstrings[python]>=0.29.1",
     "mkdocs-autoapi[python]>=0.4.1",
     "mkdocs-material>=9.6.14",
 ]
-
-[project.optional-dependencies]
 interactive = [
     "ipykernel",
     "jupyterlab",

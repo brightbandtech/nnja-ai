@@ -2435,6 +2435,12 @@ complete = [
 dask = [
     { name = "dask", extra = ["dataframe"] },
 ]
+docs = [
+    { name = "mkdocs" },
+    { name = "mkdocs-autoapi", extra = ["python"] },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
+]
 interactive = [
     { name = "ipykernel" },
     { name = "jupyterlab" },
@@ -2457,12 +2463,6 @@ dev = [
     { name = "ruff" },
     { name = "twine" },
 ]
-docs = [
-    { name = "mkdocs" },
-    { name = "mkdocs-autoapi", extra = ["python"] },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-]
 
 [package.metadata]
 requires-dist = [
@@ -2474,6 +2474,10 @@ requires-dist = [
     { name = "jsonschema", specifier = ">=4.23.0" },
     { name = "jupyterlab", marker = "extra == 'interactive'" },
     { name = "matplotlib", marker = "extra == 'interactive'" },
+    { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.6.1" },
+    { name = "mkdocs-autoapi", extras = ["python"], marker = "extra == 'docs'", specifier = ">=0.4.1" },
+    { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.6.14" },
+    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'", specifier = ">=0.29.1" },
     { name = "nnja-ai", extras = ["interactive", "dask", "polars"], marker = "extra == 'complete'", editable = "." },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "parquet", specifier = ">=1.3.1" },
@@ -2493,12 +2497,6 @@ dev = [
     { name = "python-semantic-release", specifier = ">=10.3.0" },
     { name = "ruff", specifier = ">=0.8.2" },
     { name = "twine", specifier = ">=5.1.1" },
-]
-docs = [
-    { name = "mkdocs", specifier = ">=1.6.1" },
-    { name = "mkdocs-autoapi", extras = ["python"], specifier = ">=0.4.1" },
-    { name = "mkdocs-material", specifier = ">=9.6.14" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.29.1" },
 ]
 
 [[package]]
