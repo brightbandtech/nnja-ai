@@ -26,7 +26,7 @@ You can find an example notebook [here](example_notebooks/basic_dataset_example.
 Though to get started, you can open the data catalog like so:
 
 ```python
-from nnja import DataCatalog
+from nnja_ai import DataCatalog
 catalog = DataCatalog()
 print("datasets in catalog:", catalog.list_datasets())
 ```
