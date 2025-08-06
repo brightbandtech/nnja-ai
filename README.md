@@ -24,12 +24,31 @@ The list of all NNJA datasets can be found on the [NNJA project page](https://ps
 
 ## Getting Started
 
-To install this package directly from the GitHub repository, you can use the following `pip` command:
+Official releases are available on [PyPI](https://pypi.org/project/nnja-ai/), and you can
+directly install into your working environment:
+
+```sh
+# Basic installation
+pip install nnja-ai
+
+# Installation with optional dependencies for complete functionality
+pip install "nnja-ai[complete]>=1.0.0"
+
+# Add to an existing `uv` workspace
+uv add nnja-ai
+
+# Launch an interactive IPython session with the package installed
+uv run --with nnja-ai ipython
+```
+
+To install bleeding-edge versions of this package directly from the GitHub repository,
+you can use the following `pip` command:
 
 ```sh
 pip install git+https://github.com/brightbandtech/nnja-ai.git
 ```
 You can find an example notebook [here](example_notebooks/basic_dataset_example.ipynb) showing the basics of opening the data catalog, finding a dataset, subsetting, and finally loading the data to pandas.
+
 Though to get started, you can open the data catalog like so:
 
 ```python
