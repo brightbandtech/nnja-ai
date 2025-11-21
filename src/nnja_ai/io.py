@@ -145,17 +145,21 @@ def load_parquet(
         case "pandas":
             import pandas as pd
 
-            return pd.concat(
-                [
-                    pd.read_parquet(
-                        uri,
-                        columns=columns,
-                        storage_options=auth_args,
-                        **backend_kwargs,
-                    )
-                    for uri in parquet_uris
-                ]
-            )
+            if not auth_args:
+                # This is a local file system, so we can just read the parquet files directly
+                return pd.read_parquet(parquet_uris, columns=columns, **backend_kwargs)
+            else:
+                return pd.concat(
+                    [
+                        pd.read_parquet(
+                            uri,
+                            columns=columns,
+                            storage_options=auth_args,
+                            **backend_kwargs,
+                        )
+                        for uri in parquet_uris
+                    ]
+                )
         case "polars":
             import polars as pl
 
