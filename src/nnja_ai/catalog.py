@@ -42,7 +42,7 @@ class DataCatalog:
 
     def __init__(
         self,
-        mirror: Optional[str] = DEFAULT_MIRROR,
+        mirror: Optional[str] = None,
         base_path: Optional[str] = None,
         catalog_json: Optional[str] = None,
     ):
@@ -60,7 +60,9 @@ class DataCatalog:
         Raises:
             ValueError: If both mirror and custom parameters are specified.
         """
-        # Validate parameters - no mix and match
+        # Validate parameters and specify a default mirror if not provided - no mix and match
+        if mirror is None and base_path is None and catalog_json is None:
+            mirror = DEFAULT_MIRROR
         if mirror is not None and (base_path is not None or catalog_json is not None):
             raise ValueError(
                 "Cannot specify both 'mirror' and custom parameters ('base_path', 'catalog_json'). "
