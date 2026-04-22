@@ -99,7 +99,7 @@ class NNJADataset:
     def manifest(self) -> pd.DataFrame:
         """Get the dataset's manifest of parquet partitions, loading it if needed."""
         if not self._manifest_loaded:
-            print(f"Loading manifest for dataset '{self.name}'...")
+            logger.info(f"Loading manifest for dataset '{self.name}'...")
             self._manifest_cache = io.load_manifest(self.parquet_root_path)
             self._manifest_loaded = True
         return self._manifest_cache
